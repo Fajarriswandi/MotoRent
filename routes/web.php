@@ -73,6 +73,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Reports BELUM DIBUAT FITURNYA
     Route::middleware('permission:reports,read')->get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+
+    // Reports routes for admins and managers
+    Route::middleware(['permission:reports,read'])->group(function () {
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+        Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
+        Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+    });
+
+
 });
 
 // ✅ Customer Dashboard & Rentals
@@ -90,3 +101,4 @@ Route::middleware(['auth'])->group(function () {
 // ✅ Public motor page
 Route::get('/motor', [MotorbikeController::class, 'publicIndex'])->name('motorbikes.public');
 Route::get('/motorbikes/{motorbike}', [MotorbikeController::class, 'show'])->name('motorbikes.show');
+
