@@ -1,14 +1,94 @@
 // resources/scss/app.scss
 
-$primary: #0d6efd;
+$primary: #1977D1;
+$secondary: #01958A;
+$text: #7C8092;
+$lightstroke: #DDE4EA;
+$cardHeader: #F0F8FB;
+$cardBodyDark: #D5E6EE;
+
+// Background Gradient
+@mixin gradient-bg($start-color, $end-color, $direction: to right) {
+    background-image: linear-gradient($direction, $start-color, $end-color);
+}
+
+// Text Gradient
+@mixin gradient-text($start-color, $end-color, $direction: to right) {
+    background: linear-gradient($direction, $start-color, $end-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text; // buat Firefox
+    color: transparent;
+}
+
+.titlePage {
+    @include gradient-text($primary, $secondary);
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+
+
+.bgPrimaryCostume {
+    @include gradient-bg($primary, $secondary, to right);
+}
+
+.btn-primary {
+    @extend .bgPrimaryCostume;
+}
 
 body {
-    background: #f8f9fa;
-    font-family: sans-serif;
+    background: #D5E6EE;
 }
 
+.containerApp {
+    min-width: 100%;
 
-.navbar {
-    background-color: $primary;
+
+
+    @media (min-width: 1441px) {
+        min-width: 1320px;
+    }
 }
 
+.navbarCostume {
+
+    // @extend .bgPrimaryCostume;
+    .mainMenu {
+        li {
+            a {
+                &.active {
+                    @extend .bgPrimaryCostume;
+                    color: white;
+                    padding-left: 25px;
+                    padding-right: 25px;
+                    border-radius: 50px;
+                }
+            }
+        }
+    }
+}
+
+.cardMainContainer {
+    background: orange;
+
+    .card-header {
+        background: #F0F8FB;
+        margin-top: -50px;
+        border-radius: 20px 20px 0 0;
+        padding: 20px 30px;
+    }
+
+    >.card-body {
+        background: #D5E6EE;
+        min-height: 100vh;
+    }
+
+    &::before {
+        content: '';
+        display: table;
+        width: 100%;
+        height: 75px;
+        background: white;
+    }
+}

@@ -12,9 +12,6 @@
 
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
 
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -109,7 +106,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     toast: true,
-                    position: 'top-end',
+                    position: 'bottom-end',
                     icon: 'success',
                     title: '{{ session("success") }}',
                     showConfirmButton: false,

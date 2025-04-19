@@ -78,10 +78,10 @@
             document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     toast: true,
-                    position: 'top-end',
+                    position: 'bottom-end',
                     icon: 'success',
                     title: '{{ session("success") }}',
-                    showConfirmButton: false,
+                    showConfirmButton: true,
                     timer: 3000,
                     timerProgressBar: true
                 });
