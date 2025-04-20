@@ -29,10 +29,7 @@ class MotorbikeSeeder extends Seeder
                 'year' => $year,
                 'color' => $color,
                 'license_plate' => $plate,
-                'rental_price_hour' => 15000,
                 'rental_price_day' => 100000,
-                'rental_price_week' => 600000,
-                'status' => 'available',
                 'image' => null,
             ]);
         }

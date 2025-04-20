@@ -11,17 +11,23 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('user_permissions', function (Blueprint $table) {
+            $table->engine = 'InnoDB'; // ✅ foreign key hanya jalan di InnoDB
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('permission_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('permission_id');
+
             $table->boolean('can_read')->default(false);
             $table->boolean('can_create')->default(false);
             $table->boolean('can_edit')->default(false);
             $table->boolean('can_delete')->default(false);
             $table->timestamps();
-        });
 
+            // ✅ definisi FK manual
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+        });
     }
+
 
     /**
      * Reverse the migrations.
