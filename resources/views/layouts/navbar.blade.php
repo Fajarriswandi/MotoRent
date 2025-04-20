@@ -1,6 +1,6 @@
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light bg-white">
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light bg-white bgPrimaryCostume123">
 
-    <div class="container-fluid containerApp123 pt-1">
+    <div class="container-fluid containerApp123 pt-1 pb-1">
 
         <!-- Logo -->
         <a class="navbar-brand" href="/"><img src="{{ asset('images/logo.png') }}" alt="Logo MotoRent" width="150">
@@ -24,26 +24,26 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}"
                                         href="{{ route('admin.dashboard') }}">
-                                        Dashboard
+                                        <x-icon name="si:dashboard-fill" class="sm me-1"/>Dashboard
                                     </a>
                                 </li>
                             @endif
 
                             @if (canAccess('motorbikes', 'read'))
                                 <li class="nav-item"><a class="nav-link {{ request()->is('admin/motorbikes*') ? 'active' : '' }}"
-                                        href="{{ route('motorbikes.index') }}">Motorbikes</a></li>
+                                        href="{{ route('motorbikes.index') }}"><x-icon name="fluent:vehicle-motorcycle-24-filled" class="sm me-1"/>Motorbikes</a></li>
                             @endif
 
                             @if (canAccess('rentals', 'read'))
                                 <li class="nav-item"><a class="nav-link {{ request()->is('admin/rentals*') ? 'active' : '' }}"
-                                        href="{{ route('admin.rentals.index') }}">Rentals</a></li>
+                                        href="{{ route('admin.rentals.index') }}"><x-icon name="heroicons-solid:key" class="sm me-1"/>Rentals</a></li>
                             @endif
 
                             @if (canAccess('customers', 'read'))
                                 <li class="nav-item dropdown ">
                                     <a class="nav-link dropdown-toggle {{ request()->is('admin/customers*') ? 'active' : '' }}" href="#"
                                         id="navbarCustomerDropdown" role="button" data-bs-toggle="dropdown">
-                                        Customers
+                                        <x-icon name="mage:users-fill" class="sm me-1"/>Customers
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         @if (canAccess('customers', 'read'))
@@ -62,12 +62,12 @@
                             @if (canAccess('users', 'read'))
                                 <li class="nav-item"><a
                                         class="nav-link {{ request()->is('admin/users*') || request()->is('users*') ? 'active' : '' }}"
-                                        href="{{ route('users.index') }}"><i class="bi bi-people"></i> Users</a></li>
+                                        href="{{ route('users.index') }}"><x-icon name="game-icons:padlock-open" class="sm me-1"/>Users</a></li>
                             @endif
 
                             @if (canAccess('reports', 'read'))
                                 <li class="nav-item"><a class="nav-link {{ request()->is('admin/reports*') ? 'active' : '' }}"
-                                        href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+                                        href="{{ route('reports.index') }}"><x-icon name="majesticons:analytics-plus" class="sm me-1"/> Reports</a>
                                 </li>
                             @endif
 

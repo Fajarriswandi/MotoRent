@@ -2,9 +2,8 @@
 
 @section('content')
 
-    <div class="card cardMainContainer">
-        <div class="card-header">
-
+    <div class="headerContent">
+        <div class="container-fluid">
             <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
                 <div class="bg-primary1 text-white rounded p-2">
                     <h3 class="titlePage">Dashboard Admin</h3>
@@ -37,13 +36,11 @@
 
                 </div>
             </div>
-
-
-
-
         </div>
-        <div class="card-body">
+    </div>
 
+    <div class="mainContent">
+        <div class="container-fluid">
             {{-- Statistik Motor --}}
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
@@ -224,11 +221,8 @@
                     </table>
                 </div>
             </div>
-
-
         </div>
     </div>
-
 
 
 

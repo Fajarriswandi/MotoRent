@@ -4,9 +4,9 @@
     <div class="container">
         <h3 class="mb-4">Manajemen Penyewaan</h3>
 
-        @if (session('success'))
+        <!-- @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        @endif -->
 
         @if (canAccess('rentals', 'create'))
             <a href="{{ route('admin.rentals.create') }}" class="btn btn-primary mb-3">+ Tambah Penyewaan</a>

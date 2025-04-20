@@ -9,18 +9,19 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
   @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-
 </head>
 
 <body>
 
   @include('layouts.navbar')
 
-  <main class="container-fluid pt-5 ps-0 pe-0">
+  <main class="container-fluid ps-0 pe-0">
     @yield('content')
   </main>
 
+
   @stack('scripts')
+
 </body>
 
 </html>

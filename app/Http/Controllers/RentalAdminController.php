@@ -35,14 +35,14 @@ class RentalAdminController extends Controller
 
         $motorbike = Motorbike::findOrFail($request->motorbike_id);
 
-        // 1. Validasi status teknis
+        // ✅ 1. Validasi status teknis
         if ($motorbike->technical_status !== 'active') {
             return redirect()->back()
                 ->with('rental_conflict', 'Motor ini sedang tidak aktif atau dalam perawatan.')
-                ->withInput(); // <-- ini penting!
+                ->withInput();
         }
 
-        // 2. Validasi konflik tanggal sewa
+        // ✅ 2. Validasi konflik tanggal sewa
         $conflict = Rental::where('motorbike_id', $motorbike->id)
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_date', [$request->start_date, $request->end_date])
@@ -59,20 +59,24 @@ class RentalAdminController extends Controller
         if ($conflict) {
             return redirect()->back()
                 ->with('rental_conflict', 'Motor ini sudah dibooking dalam rentang tanggal tersebut!')
-                ->withInput(); // <-- wajib untuk trigger alert
+                ->withInput();
         }
 
-        // 3. Hitung harga
-        $days = Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1;
-        $price = $motorbike->rental_price_day * $days;
+        // ✅ 3. Snapshot harga motor saat ini
+        $priceDay = (int) $motorbike->rental_price_day;
 
-        // 4. Simpan penyewaan
+        // ✅ 4. Hitung total berdasarkan harian
+        $days = Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1;
+        $total = $priceDay * $days;
+
+        // ✅ 5. Simpan penyewaan
         Rental::create([
             'customer_id' => $request->customer_id,
             'motorbike_id' => $motorbike->id,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'total_price' => $price,
+            'total_price' => $total,
+            'price_day' => $priceDay,
             'is_approved' => true,
             'is_completed' => false,
             'is_cancelled' => false,
@@ -80,6 +84,9 @@ class RentalAdminController extends Controller
 
         return redirect()->route('admin.rentals.index')->with('success', 'Penyewaan berhasil dibuat.');
     }
+
+
+
 
 
     public function updateStatus(Request $request, Rental $rental)
@@ -98,6 +105,7 @@ class RentalAdminController extends Controller
         $rental->update([
             'is_completed' => true,
             'is_cancelled' => false,
+            'end_date' => now()->toDateString(), // atau now()->subDay()->toDateString() kalau mau lebih ketat
         ]);
 
         return redirect()->back()->with('success', 'Penyewaan selesai dan motor tersedia kembali.');

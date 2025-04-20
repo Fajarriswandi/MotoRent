@@ -15,11 +15,12 @@ class Rental extends Model
         'start_date',
         'end_date',
         'total_price',
-        'status',
+        'price_day',
         'is_approved',
         'is_completed',
-        'is_cancelled', 
+        'is_cancelled',
     ];
+
 
 
     protected $casts = [

@@ -14,20 +14,42 @@ class MotorbikeController extends Controller
     {
         $query = Motorbike::with('rentals');
 
-        if ($request->filled('brand')) {
-            $query->where('brand', 'like', "%{$request->brand}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('year', 'like', "%{$search}%")
+                    ->orWhere('license_plate', 'like', "%{$search}%");
+            });
         }
 
-        if ($request->filled('model')) {
-            $query->where('model', 'like', "%{$request->model}%");
-        }
+        $now = now()->toDateString();
 
-        // Tetap bisa filter status teknis: available/maintenance (jika diperlukan)
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if (in_array($request->status, ['rented', 'available'])) {
+                if ($request->status === 'rented') {
+                    $query->whereHas('rentals', function ($q) use ($now) {
+                        $q->where('start_date', '<=', $now)
+                            ->where('end_date', '>=', $now)
+                            ->where('is_cancelled', false)
+                            ->where('is_completed', false);
+                    });
+                } elseif ($request->status === 'available') {
+                    $query->whereDoesntHave('rentals', function ($q) use ($now) {
+                        $q->where('start_date', '<=', $now)
+                            ->where('end_date', '>=', $now)
+                            ->where('is_cancelled', false)
+                            ->where('is_completed', false);
+                    });
+                }
+            } else {
+                $query->where('technical_status', $request->status);
+            }
         }
 
-        $motorbikes = $query->latest()->paginate(10);
+        $motorbikes = $query->latest()->paginate(8);
 
         return view('motorbikes.index', compact('motorbikes'));
     }
@@ -36,16 +58,35 @@ class MotorbikeController extends Controller
     {
         $query = Motorbike::with('rentals');
 
-        if ($request->filled('brand')) {
-            $query->where('brand', 'like', "%{$request->brand}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('year', 'like', "%{$search}%")
+                    ->orWhere('license_plate', 'like', "%{$search}%");
+            });
         }
 
-        if ($request->filled('model')) {
-            $query->where('model', 'like', "%{$request->model}%");
-        }
+        $now = now()->toDateString();
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if (in_array($request->status, ['rented', 'available'])) {
+                if ($request->status === 'rented') {
+                    $query->whereHas('rentals', function ($q) use ($now) {
+                        $q->where('start_date', '<=', $now)
+                            ->where('end_date', '>=', $now);
+                    });
+                } elseif ($request->status === 'available') {
+                    $query->whereDoesntHave('rentals', function ($q) use ($now) {
+                        $q->where('start_date', '<=', $now)
+                            ->where('end_date', '>=', $now);
+                    });
+                }
+            } else {
+                $query->where('technical_status', $request->status);
+            }
         }
 
         $motorbikes = $query->latest()->paginate(6);
@@ -69,10 +110,7 @@ class MotorbikeController extends Controller
 
         Motorbike::create($validated);
 
-        // return redirect()->route('motorbikes.index')->with('success', 'Motor berhasil ditambahkan.');
         return redirect()->route('motorbikes.index')->with('success', 'Data motor berhasil ditambahkan.');
-
-
     }
 
     public function edit(Motorbike $motorbike)
@@ -82,7 +120,6 @@ class MotorbikeController extends Controller
 
     public function update(Request $request, Motorbike $motorbike)
     {
-        
         $validated = $this->validateData($request, $motorbike);
         $validated = $this->sanitizeCurrencyFields($validated);
 
@@ -95,7 +132,7 @@ class MotorbikeController extends Controller
 
         $motorbike->update($validated);
 
-        return redirect()->route('motorbikes.index')->with('success', 'DataMotor berhasil diperbarui.');
+        return redirect()->route('motorbikes.index')->with('success', 'Data motor berhasil diperbarui.');
     }
 
     public function destroy(Motorbike $motorbike)
@@ -130,22 +167,17 @@ class MotorbikeController extends Controller
             'year' => ['required', 'digits:4', 'integer', 'min:1900', 'max:2100'],
             'color' => ['required', 'string', 'max:50'],
             'license_plate' => ['required', 'string', 'max:20', Rule::unique('motorbikes')->ignore($motorbikeId)],
-            'rental_price_hour' => ['nullable', 'string'],
             'rental_price_day' => ['nullable', 'string'],
-            'rental_price_week' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'technical_status' => ['required', Rule::in(['active', 'inactive', 'maintenance'])],
         ]);
     }
 
-
     private function sanitizeCurrencyFields(array $data): array
     {
-        foreach (['rental_price_hour', 'rental_price_day', 'rental_price_week'] as $field) {
-            if (isset($data[$field])) {
-                $data[$field] = str_replace('.', '', $data[$field]);
-                $data[$field] = floatval($data[$field]);
-            }
+        if (isset($data['rental_price_day'])) {
+            $data['rental_price_day'] = str_replace('.', '', $data['rental_price_day']);
+            $data['rental_price_day'] = floatval($data['rental_price_day']);
         }
         return $data;
     }

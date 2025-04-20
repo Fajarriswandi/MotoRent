@@ -27,8 +27,6 @@ $cardBodyDark: #D5E6EE;
     font-size: 2rem;
 }
 
-
-
 .bgPrimaryCostume {
     @include gradient-bg($primary, $secondary, to right);
 }
@@ -44,8 +42,6 @@ body {
 .containerApp {
     min-width: 100%;
 
-
-
     @media (min-width: 1441px) {
         min-width: 1320px;
     }
@@ -53,10 +49,14 @@ body {
 
 .navbarCostume {
 
-    // @extend .bgPrimaryCostume;
     .mainMenu {
         li {
             a {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                display: flex;
+                align-items: center;
+
                 &.active {
                     @extend .bgPrimaryCostume;
                     color: white;
@@ -69,26 +69,40 @@ body {
     }
 }
 
-.cardMainContainer {
-    background: orange;
 
-    .card-header {
-        background: #F0F8FB;
-        margin-top: -50px;
-        border-radius: 20px 20px 0 0;
-        padding: 20px 30px;
+.headerContent {
+    background: $cardHeader;
+    margin-top: 70px;
+    padding: 20px 10px;
+}
+
+.mainContent {
+    background: $cardBodyDark;
+    min-height: 100vh;
+    padding: 20px 10px;
+}
+
+.iconify {
+    width: 24px;
+    height: 24px;
+
+    &.xs {
+        width: 14px;
+        height: 14px;
     }
 
-    >.card-body {
-        background: #D5E6EE;
-        min-height: 100vh;
+    &.sm {
+        width: 18px;
+        height: 18px;
     }
 
-    &::before {
-        content: '';
-        display: table;
-        width: 100%;
-        height: 75px;
-        background: white;
+    &.md {
+        width: 24px;
+        height: 24px;
+    }
+
+    &.lg {
+        width: 32px;
+        height: 32px;
     }
 }

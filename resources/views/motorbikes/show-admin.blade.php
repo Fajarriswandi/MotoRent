@@ -48,17 +48,10 @@
                     </tr>
 
                     <tr>
-                        <th>Harga per Jam</th>
-                        <td>Rp{{ number_format($motorbike->rental_price_hour, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr>
                         <th>Harga per Hari</th>
                         <td>Rp{{ number_format($motorbike->rental_price_day, 0, ',', '.') }}</td>
                     </tr>
-                    <tr>
-                        <th>Harga per Minggu</th>
-                        <td>Rp{{ number_format($motorbike->rental_price_week, 0, ',', '.') }}</td>
-                    </tr>
+                   
                     <tr>
                         <th>Dibuat pada</th>
                         <td>{{ $motorbike->created_at->format('d M Y H:i') }}</td>

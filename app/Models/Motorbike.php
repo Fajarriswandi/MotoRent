@@ -15,9 +15,7 @@ class Motorbike extends Model
         'year',
         'color',
         'license_plate',
-        'rental_price_hour',
         'rental_price_day',
-        'rental_price_week',
         'technical_status', // ✅ tambahkan ini!
         'image',
     ];
