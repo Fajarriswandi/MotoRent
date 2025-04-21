@@ -168,7 +168,7 @@ class MotorbikeController extends Controller
             'color' => ['required', 'string', 'max:50'],
             'license_plate' => ['required', 'string', 'max:20', Rule::unique('motorbikes')->ignore($motorbikeId)],
             'rental_price_day' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'technical_status' => ['required', Rule::in(['active', 'inactive', 'maintenance'])],
         ]);
     }
