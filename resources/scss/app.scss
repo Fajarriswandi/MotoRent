@@ -37,6 +37,7 @@ $cardBodyDark: #D5E6EE;
 
 body {
     background: #D5E6EE;
+    color: $text;
 }
 
 .containerApp {
@@ -105,4 +106,123 @@ body {
         width: 32px;
         height: 32px;
     }
+}
+
+.input-group input[type="date"] {
+    min-width: 160px;
+}
+
+.input-group .btn {
+    white-space: nowrap;
+}
+
+.widgetCard {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: $text;
+    box-shadow: none;
+    border-color: $lightstroke;
+
+    .card-header {
+        background: none;
+        border: 0;
+        padding-bottom: 0px;
+        margin-bottom: 10px;
+
+        h5 {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            font-size: 14px;
+            color: $text;
+
+            span {
+                background: $cardHeader;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 40px;
+                height: 40px;
+                text-align: center;
+                border-radius: 50px;
+                margin-right: 5px;
+            }
+        }
+    }
+
+    &.widgetCardBodyNone {
+        padding: 0;
+
+        .card-header {
+            margin: 20px;
+            padding-bottom: 0;
+            margin-bottom: 10px;
+        }
+
+        table {
+            thead {
+                border-color: transparent !important;
+                th {
+                    background: transparent;
+                    border-color: none;
+                    color: $text;
+                    padding: 10px;
+                    font-size: 12px;
+                    font-weight: normal;
+
+                    &:first-child {
+                        padding-left: 30px;
+                    }
+
+                    &:last-child {
+                        padding-right: 30px;
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    td {
+                        padding: 10px;
+                        font-size: 14px;
+                        color: $text;
+
+                        &:first-child {
+                            padding-left: 30px;
+                        }
+
+                        &:last-child {
+                            padding-right: 30px;
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        .btn-link{
+            color: $text;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 0;
+            margin: 0;
+            font-weight: normal;
+
+            &:hover {
+                text-decoration: none;
+                color: $primary;
+            }
+        }
+    }
+
+}
+
+.table-striped {
+    --bs-table-striped-bg: #F6F8FF; // warna background baris ganjil
+    --bs-table-striped-color: $text; // warna teks di baris ganjil
+    border-color: transparent !important;
 }

@@ -47,6 +47,7 @@ class AdminDashboardController extends Controller
         $rentalsEndingToday = Rental::with('motorbike', 'customer')
             ->whereDate('end_date', $today)
             ->where('is_cancelled', false)
+            ->take(5)
             ->get();
 
         // ✅ Penyewaan yang berakhir BESOK → untuk notifikasi
@@ -63,12 +64,22 @@ class AdminDashboardController extends Controller
             $date = $startDate->copy()->addDays($i)->toDateString();
 
             $dailyRentals = Rental::whereDate('start_date', $date)->count();
-            $dailyRevenue = Rental::whereDate('start_date', $date)->sum('total_price');
+
+            // Pendapatan bersih: hanya yang sudah selesai
+            $completedRevenue = Rental::whereDate('start_date', $date)
+                ->where('is_completed', true)
+                ->sum('total_price');
+
+            // Pendapatan hilang: rental yang dibatalkan
+            $cancelledRevenue = Rental::whereDate('start_date', $date)
+                ->where('is_cancelled', true)
+                ->sum('total_price');
 
             $weeklyStats->push([
                 'date' => Carbon::parse($date)->format('d M'),
                 'rentals' => $dailyRentals,
-                'revenue' => $dailyRevenue,
+                'revenue' => $completedRevenue,
+                'lost_revenue' => $cancelledRevenue,
             ]);
         }
 
@@ -78,7 +89,7 @@ class AdminDashboardController extends Controller
             ->whereBetween('start_date', [$startDate, $endDate])
             ->groupBy('motorbike_id')
             ->orderByDesc('total')
-            ->take(5)
+            ->take(4)
             ->get();
 
         // Jumlah customer unik

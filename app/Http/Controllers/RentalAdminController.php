@@ -13,7 +13,7 @@ class RentalAdminController extends Controller
 {
     public function index()
     {
-        $rentals = Rental::with('motorbike', 'customer')->latest()->paginate(5);
+        $rentals = Rental::with('motorbike', 'customer')->latest()->paginate(8);
         return view('admin.rentals.index', compact('rentals'));
     }
 
