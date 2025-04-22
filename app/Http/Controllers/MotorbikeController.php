@@ -120,9 +120,27 @@ class MotorbikeController extends Controller
 
     public function update(Request $request, Motorbike $motorbike)
     {
+        $today = now()->toDateString();
+
+        // Cek apakah motor sedang disewa
+        $isRented = $motorbike->rentals()
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->where('is_cancelled', false)
+            ->where('is_completed', false)
+            ->exists();
+
+        // Validasi input
         $validated = $this->validateData($request, $motorbike);
         $validated = $this->sanitizeCurrencyFields($validated);
 
+        // Proteksi: Jika motor sedang disewa, jangan izinkan perubahan status teknis
+        if ($isRented) {
+            // Kembalikan nilai status teknis ke yang lama
+            $validated['technical_status'] = $motorbike->technical_status;
+        }
+
+        // Handle upload gambar baru
         if ($request->hasFile('image')) {
             if ($motorbike->image) {
                 Storage::disk('public')->delete($motorbike->image);
@@ -130,7 +148,14 @@ class MotorbikeController extends Controller
             $validated['image'] = $request->file('image')->store('motorbike_images', 'public');
         }
 
+        // Update data motor
         $motorbike->update($validated);
+
+        // Pesan sukses, tapi informasikan juga kalau status teknis tidak diubah jika sedang disewa
+        if ($isRented) {
+            return redirect()->route('motorbikes.index')
+                ->with('success', 'Data motor berhasil diperbarui, namun status teknis tidak dapat diubah karena motor sedang disewa.');
+        }
 
         return redirect()->route('motorbikes.index')->with('success', 'Data motor berhasil diperbarui.');
     }

@@ -49,10 +49,26 @@
 <div class="mainContent">
     <div class="container-fluid">
 
-        <div class="row mb-3">
+        <div class="row mb-1">
             <div class="col-md-3">
                 <!-- Total Penyewa -->
-                <div class="card widgetCard">
+                <div class="card widgetCard position-relative">
+                    <div
+                        class="position-absolute top-0 end-0 mt-3 me-3 bg-primary1 px-2 py-1 rounded small m-2"
+                        style="z-index: 10;"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="hover"
+                        data-bs-placement="left"
+                        data-bs-html="true"
+                        data-bs-custom-class="custom-popover"
+                        data-bs-title="Penjelasan"
+                        data-bs-content="
+                        <strong>Total Penyewa</strong> <br/>
+                        Jumlah total ini mengikuti tanggal filter yang di pilih. <br/>
+                        ">
+                        info <x-icon name="uil:info-circle" class="sm ms-1" />
+                    </div>
+
                     <div class="card-header">
                         <h5><span><x-icon name="si:dashboard-fill" class="sm me-1" /></span> Total Penyewa</h5>
                     </div>
@@ -65,18 +81,38 @@
 
             <div class="col-md-5">
                 <!-- Total Pendapatan -->
-                <div class="card widgetCard">
+                <div class="card widgetCard position-relative">
+                    <div
+                        class="position-absolute top-0 end-0 mt-3 me-3 bg-primary1 px-2 py-1 rounded small m-2"
+                        style="z-index: 10;"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="hover"
+                        data-bs-placement="left"
+                        data-bs-html="true"
+                        data-bs-custom-class="custom-popover"
+                        data-bs-title="Penjelasan"
+                        data-bs-content="
+                        <strong>Total Pendapatan Saat ini</strong> <br/>
+                        Default totalnya di ambil data per minggu ini, dan total ini juga menyesuaikan hasil filter tanggal. <br/><br/>
+
+                        <strong>Total Pendapatan Bulan ini</strong> <br/>
+                        Ini adalah total pendapatanper bulan ini.
+                        ">
+                        info <x-icon name="uil:info-circle" class="sm ms-1" />
+                    </div>
+
                     <div class="card-header">
                         <h5><span><x-icon name="si:dashboard-fill" class="sm me-1" /></span> Total Pendapatan</h5>
+
                     </div>
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <small>Hari ini</small>
-                                <h2>Rp{{ number_format($revenueToday, 0, ',', '.') }}</h2>
+                                <small>Saat ini</small>
+                                <h2>Rp{{ number_format($revenueInRange, 0, ',', '.') }}</h2>
                             </div>
                             <div>
-                                <small>Periode ini</small>
+                                <small>Bulan ini</small>
                                 <h2>Rp{{ number_format($revenueMonth, 0, ',', '.') }}</h2>
                             </div>
                         </div>
@@ -110,10 +146,28 @@
             </div>
         </div>
 
-        <div class="row mb-3" style="min-height: 300px;">
-            <div class="col-md-8">
+        <div class="row mb-4" style="min-height: 300px;">
+            <div class="col-md-8 mb-3">
                 <!-- Insight Statistik -->
-                <div class="card widgetCard h-100">
+                <div class="card widgetCard h-100 position-relative">
+                    <div
+                        class="position-absolute top-0 end-0 mt-3 me-3 bg-primary1 px-2 py-1 rounded small m-2"
+                        style="z-index: 10;"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="hover"
+                        data-bs-placement="left"
+                        data-bs-html="true"
+                        data-bs-custom-class="custom-popover"
+                        data-bs-title="Penjelasan"
+                        data-bs-content="
+                        <strong>Pendapatan</strong> <br/>
+                        Data yang berasal dari total transaksi penyewaan motor yang telah selesai (is_completed)<br/>
+                        <strong>Pendapatan Hilang</strong> <br/>
+                        Menunjukkan nilai transaksi yang dibatalkan (is_cancelled) dalam periode tertentu.<br/>
+                        ">
+                        info <x-icon name="uil:info-circle" class="sm ms-1" />
+                    </div>
+
                     <div class="card-header">
                         <h5><span><x-icon name="si:dashboard-fill" class="sm me-1" /></span> Insight Data</h5>
                     </div>
@@ -123,7 +177,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-4 mb-1">
                 <!-- Penyewa habis hari ini -->
                 <div class="card widgetCard widgetCardBodyNone h-100">
                     <div class="card-header">
@@ -163,7 +217,7 @@
 
 
         <div class="row mb-3" style="min-height: 300px;">
-            <div class="col-md-6">
+            <div class="col-md-6 mb-4">
                 <!-- Jadwal Motor Akan Disewa Besok -->
                 <div class="card widgetCard widgetCardBodyNone h-100">
                     <div class="card-header">
@@ -196,7 +250,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 mb-4">
                 <!-- Penyewa yang habis besok -->
                 <div class="card widgetCard widgetCardBodyNone h-100">
                     <div class="card-header">
@@ -235,36 +289,56 @@
     <div class="row mb-3 p-3">
         <h3><x-icon name="noto:fire" class="lg me-1 mb-2" /></span>Motor Paling Sering Disewa</h3>
 
-
         @forelse ($topMotorbikes as $item)
         <div class="col-md-3">
-            <div class="card widgetCard widgetCardBodyNone">
-                {{-- Gambar motor --}}
-                <div class="p-3 text-center">
-                    @if ($item->motorbike->image)
-                    <img
-                        src="{{ asset('storage/' . $item->motorbike->image) }}"
-                        alt="{{ $item->motorbike->brand }} {{ $item->motorbike->model }}"
-                        class="img-fluid"
-                        style="height: 100px; object-fit: cover;">
-                    @else
-                    <div class="text-muted" style="font-size: 40px;">
-                        <i class="bi bi-image" title="Gambar tidak tersedia"></i>
+            <a href="{{ route('motorbikes.admin.show', $item->motorbike) }}" style="text-decoration: none;">
+                <div class="card widgetCard widgetCardBodyNone widgetCardProduct position-relative">
+
+                    <small class="position-absolute top-0 start-0 bg-primary1 text-white1 px-2 py-1 mt-3 ms-3 rounded small text-warning" style="z-index: 10;">
+                        @php
+                        $rank = $loop->iteration;
+                        $suffix = match($rank) {
+                        1 => 'st',
+                        2 => 'nd',
+                        3 => 'rd',
+                        default => 'th'
+                        };
+                        @endphp
+                        <x-icon name="solar:cup-star-broken" class="sm" />{{ $rank }}{{ $suffix }}
+                    </small>
+                    {{-- Gambar motor --}}
+
+
+                    <div class="card-body text-center">
+                        <div class="p-3 text-center">
+                            @if ($item->motorbike->image)
+                            <img
+                                src="{{ asset('storage/' . $item->motorbike->image) }}"
+                                alt="{{ $item->motorbike->brand }} {{ $item->motorbike->model }}"
+                                class="img-fluid"
+                                style="height: 180px; object-fit: cover;">
+                            @else
+                            <div class="text-muted" style="font-size: 40px;">
+                                <i class="bi bi-image" title="Gambar tidak tersedia"></i>
+                            </div>
+                            @endif
+                        </div>
+                        <small class="text-muted position-absolute top-0 end-0 bg-primary1 text-white1 px-3 py-3 rounded-end small" style="z-index: 10;"><i class="bi bi-clock-history"></i> {{ $item->total }}x disewa</small>
                     </div>
-                    @endif
-                </div>
 
-                <div class="card-body text-center">
-                    <strong>{{ $item->motorbike->brand }}</strong><br>
-                    {{ $item->motorbike->model }}<br>
-                    <span class="text-muted">{{ $item->motorbike->license_plate }}</span>
-                </div>
+                    <div class="card-footer text-center pt-3 pb-3 d-flex flex-row align-items-center justify-content-between">
+                        <div class="text-truncate text-start">
+                            {{ $item->motorbike->brand }} {{ $item->motorbike->model }} <br>
+                            <small><span class="text-muted">{{ $item->motorbike->license_plate }}</span></small>
+                        </div>
 
-                <div class="card-footer text-center">
-                    <div>{{ $item->total }} penyewaan</div>
-                    <div class="fw-bold">Rp. {{ number_format($item->motorbike->rental_price_day, 0, ',', '.') }}</div>
+                        <div class="fw-bold text-end">
+                            Rp. {{ number_format($item->motorbike->rental_price_day, 0, ',', '.') }} <br>
+                            <smal class="fw-normal">Per Day</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         @empty
         <div class="col-12 text-center text-muted">
@@ -275,189 +349,6 @@
 
     </div>
 
-
-
-
-    {{-- Statistik Motor --}}
-    <div class="row g-3 mt-2 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <h5 class="card-title">Motor Aktif</h5>
-                    <h2 class="text-success">{{ $motorCounts['active'] }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Motor Maintenance</h5>
-                    <h2 class="text-warning">{{ $motorCounts['maintenance'] }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-secondary">
-                <div class="card-body">
-                    <h5 class="card-title">Motor Tidak Aktif</h5>
-                    <h2 class="text-muted">{{ $motorCounts['inactive'] }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Statistik Penyewaan dan Pendapatan --}}
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-info">
-                <div class="card-body">
-                    <h5 class="card-title">Total Penyewaan</h5>
-                    <h2 class="text-info">{{ $rentalsThisMonth }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm border-primary">
-                <div class="card-body">
-                    <h5 class="card-title">Pendapatan</h5>
-                    <p class="mb-1">Hari Ini: <strong>Rp{{ number_format($revenueToday, 0, ',', '.') }}</strong></p>
-                    <p>Periode Ini: <strong>Rp{{ number_format($revenueMonth, 0, ',', '.') }}</strong></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Grafik Performa Mingguan --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Grafik Performa Mingguan</h5>
-            <canvas id="weeklyChart" height="100"></canvas>
-        </div>
-    </div>
-
-    {{-- Top 5 Motor Paling Sering Disewa --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Top 5 Motor Paling Sering Disewa</h5>
-            <table class="table table-sm table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Motor</th>
-                        <th>Jumlah Sewa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($topMotorbikes as $item)
-                    <tr>
-                        <td>{{ $item->motorbike->brand }} {{ $item->motorbike->model }} -
-                            {{ $item->motorbike->license_plate }}
-                        </td>
-                        <td>{{ $item->total }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="2" class="text-center">Tidak ada data penyewaan.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{-- Jumlah Customer yang Menyewa --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Jumlah Customer Menyewa Sesuai filter</h5>
-            <h2 class="text-primary">{{ $uniqueCustomerCount }}</h2>
-        </div>
-    </div>
-
-    {{-- Notifikasi Penyewaan yang Berakhir Besok --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Notifikasi: Penyewaan Berakhir Besok</h5>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Customer</th>
-                        <th>Motor</th>
-                        <th>Tanggal Akhir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($rentalsEndingTomorrow as $rental)
-                    <tr>
-                        <td>{{ $rental->customer->name }}</td>
-                        <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
-                        <td>{{ \Carbon\Carbon::parse($rental->end_date)->format('d M Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center text-muted">Tidak ada penyewaan yang berakhir besok.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{-- Jadwal Motor Akan Disewa Besok --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Jadwal Motor Akan Disewa Besok</h5>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Customer</th>
-                        <th>Motor</th>
-                        <th>Tanggal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($rentalsTomorrow as $rental)
-                    <tr>
-                        <td>{{ $rental->customer->name }}</td>
-                        <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
-                        <td>{{ \Carbon\Carbon::parse($rental->start_date)->format('d M Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center">Tidak ada jadwal sewa besok.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{-- Penyewaan Berakhir Hari Ini --}}
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Penyewaan Berakhir Hari Ini</h5>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Customer</th>
-                        <th>Motor</th>
-                        <th>Tanggal Akhir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($rentalsEndingToday as $rental)
-                    <tr>
-                        <td>{{ $rental->customer->name }}</td>
-                        <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
-                        <td>{{ \Carbon\Carbon::parse($rental->end_date)->format('d M Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center">Tidak ada penyewaan yang berakhir hari ini.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 </div>
 
@@ -533,5 +424,14 @@
             }
         });
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
+    });
 </script>
 @endpush

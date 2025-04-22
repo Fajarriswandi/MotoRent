@@ -14,6 +14,10 @@ Route::get('/', fn() => view('welcome'));
 
 Auth::routes();
 
+Route::get('/cek-waktu', function () {
+    return now()->timezone('Asia/Jakarta')->format('Y-m-d H:i:s');
+});
+
 // 🔁 Redirect dashboard berdasarkan role
 Route::get('/dashboard', function () {
     if (Auth::check()) {

@@ -34,8 +34,15 @@ class AdminDashboardController extends Controller
         $rentalsInRange = Rental::whereBetween('start_date', [$startDate, $endDate]);
         $rentalsThisMonth = $rentalsInRange->count();
 
-        $revenueToday = Rental::whereDate('start_date', $today)->sum('total_price');
-        $revenueMonth = $rentalsInRange->sum('total_price');
+        $revenueInRange = Rental::whereBetween('start_date', [$startDate, $endDate])
+            ->where('is_completed', true)
+            ->sum('total_price');
+
+        // $revenueMonth = $rentalsInRange->sum('total_price');
+        $revenueMonth = Rental::whereMonth('start_date', Carbon::now()->month)
+            ->whereYear('start_date', Carbon::now()->year)
+            ->where('is_completed', true)
+            ->sum('total_price');
 
         // Penyewaan yang akan dimulai besok
         $rentalsTomorrow = Rental::with('motorbike', 'customer')
@@ -100,8 +107,8 @@ class AdminDashboardController extends Controller
         return view('admin.dashboard', compact(
             'motorCounts',
             'rentalsThisMonth',
-            'revenueToday',
             'revenueMonth',
+            'revenueInRange',
             'rentalsTomorrow',
             'rentalsEndingToday',
             'rentalsEndingTomorrow', // ⬅️ tambahan ini

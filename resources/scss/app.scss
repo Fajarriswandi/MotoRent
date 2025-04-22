@@ -165,6 +165,7 @@ body {
         table {
             thead {
                 border-color: transparent !important;
+
                 th {
                     background: transparent;
                     border-color: none;
@@ -204,7 +205,7 @@ body {
 
         }
 
-        .btn-link{
+        .btn-link {
             color: $text;
             font-size: 14px;
             text-decoration: none;
@@ -219,10 +220,36 @@ body {
         }
     }
 
+    &.widgetCardProduct {
+        .card-body {
+            background: url('../assets/images/bgCardProduct.png') no-repeat center center;
+            background-size: 80%;
+            min-height: 250px;
+            padding-top: 30px;
+            padding-bottom: 15px;
+        }
+    }
+
 }
 
 .table-striped {
     --bs-table-striped-bg: #F6F8FF; // warna background baris ganjil
     --bs-table-striped-color: $text; // warna teks di baris ganjil
     border-color: transparent !important;
+}
+
+
+.custom-popover {
+    // --bs-popover-max-width: 200px;
+    --bs-popover-border-color: #ddd;
+    --bs-popover-header-bg: #1977D1;
+    --bs-popover-header-color: white;
+    --bs-popover-body-padding-x: 1rem;
+    --bs-popover-body-padding-y: .5rem;
+
+    .popover-body {
+        color: $text;
+        /* Ganti dengan warna teks yang lo mau */
+        font-size: 14px;
+    }
 }
