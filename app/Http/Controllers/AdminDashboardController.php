@@ -50,10 +50,11 @@ class AdminDashboardController extends Controller
             ->where('is_cancelled', false)
             ->get();
 
-        // Penyewaan yang berakhir hari ini
+        // Penyewaan yang berakhir hari ini & masih berjalan
         $rentalsEndingToday = Rental::with('motorbike', 'customer')
             ->whereDate('end_date', $today)
             ->where('is_cancelled', false)
+            ->where('is_completed', false)
             ->take(5)
             ->get();
 

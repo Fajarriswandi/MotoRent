@@ -11,9 +11,50 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class RentalAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $rentals = Rental::with('motorbike', 'customer')->latest()->paginate(8);
+        $query = Rental::with(['motorbike', 'customer']);
+
+        // 🔍 Filter Search Brand / Model
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('motorbike', function ($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%");
+            });
+        }
+
+        // 📅 Filter Tanggal Mulai
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+
+        // 📅 Filter Tanggal Akhir
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->end_date);
+        }
+
+        // ⚡ Filter Status Penyewaan
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'ongoing':
+                    $query->where('start_date', '<=', now())
+                        ->where('end_date', '>=', now())
+                        ->where('is_cancelled', false)
+                        ->where('is_completed', false);
+                    break;
+                case 'completed':
+                    $query->where('is_completed', true);
+                    break;
+                case 'cancelled':
+                    $query->where('is_cancelled', true);
+                    break;
+            }
+        }
+
+        // Pagination dengan query string tetap terbawa
+        $rentals = $query->latest()->paginate(10)->appends($request->query());
+
         return view('admin.rentals.index', compact('rentals'));
     }
 
@@ -137,6 +178,4 @@ class RentalAdminController extends Controller
         $pdf = Pdf::loadView('admin.rentals.invoice', compact('rental'));
         return $pdf->download('invoice-rental-' . $rental->id . '.pdf');
     }
-
-
 }

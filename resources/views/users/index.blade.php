@@ -109,20 +109,18 @@
                 });
             });
         });
-
-        // ✅ Toast notifikasi setelah redirect
-        @if(session('success'))
-        Swal.fire({
-            toast: true,
-            position: 'bottom-end',
-            icon: 'success',
-            title: '{{ session('
-            success ') }}',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-        @endif
     });
 </script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: "{{ session('success') }}",
+        showConfirmButton: true,
+        timer: 4000
+    });
+</script>
+@endif
 @endpush

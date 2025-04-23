@@ -7,12 +7,43 @@
 
     <!-- @if (session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
-@endif -->
+    @endif -->
 
     @if (canAccess('rentals', 'create'))
     <a href="{{ route('admin.rentals.create') }}" class="btn btn-primary mb-3">+ Tambah Penyewaan</a>
-
     @endif
+
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            {{-- Search Brand / Model --}}
+            <input type="text" name="search" value="{{ request('search') }}"
+                class="form-control inputGroupResponsive"
+                placeholder="Cari Brand / Model"
+                >
+
+            {{-- Tanggal Mulai --}}
+            <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control inputGroupResponsive">
+
+            {{-- Tanggal Akhir --}}
+            <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control inputGroupResponsive">
+
+            {{-- Status Penyewaan --}}
+            <select name="status" class="form-select inputGroupResponsive">
+                <option value="">Semua Status</option>
+                <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Berjalan</option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+            </select>
+
+            {{-- Button Filter --}}
+            <button class="btn btn-primary" type="submit">Filter</button>
+
+            {{-- Button Clear --}}
+            <a href="{{ route('admin.rentals.index') }}" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+
+
 </div>
 
 <div class="mainContent">
@@ -99,6 +130,19 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: "{{ session('success') }}",
+        showConfirmButton: true,
+        timer: 4000
+    });
+</script>
+@endif
+
 <script>
     function confirmDelete(rentalId) {
         Swal.fire({
@@ -145,7 +189,35 @@
                             'Accept': 'application/json'
                         }
                     })
-                    .then(() => location.reload());
+                    .then(response => {
+                        if (response.ok) {
+                            // Tampilkan SweetAlert sukses
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Penyewaan telah diselesaikan.',
+                                confirmButtonColor: '#3085d6',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            // Handle error jika response bukan 200 OK
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat menyelesaikan penyewaan.',
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Tidak dapat terhubung ke server.',
+                        });
+                    });
             }
         });
     }
@@ -175,99 +247,3 @@
 @endpush
 
 @endsection
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-{{-- Toast Notifikasi Jika Ada Session "success" --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @if(session('success'))
-        Swal.fire({
-            toast: true,
-            position: 'bottom-end',
-            icon: 'success',
-            title: '{{ session("success") }}',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-        @endif
-    });
-</script>
-
-{{-- Konfirmasi Hapus --}}
-<script>
-    function confirmDelete(rentalId) {
-        Swal.fire({
-            title: 'Yakin ingin menghapus data ini?',
-            text: 'Data penyewaan akan dihapus secara permanen.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, hapus',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/rentals/${rentalId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Berhasil!', 'Data telah dihapus.', 'success')
-                                .then(() => location.reload());
-                        }
-                    });
-            }
-        });
-    }
-
-    function confirmComplete(rentalId) {
-        Swal.fire({
-            title: 'Selesaikan Penyewaan?',
-            text: 'Status motor akan dikembalikan ke tersedia.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Selesaikan',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/rentals/${rentalId}/complete`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(() => location.reload());
-            }
-        });
-    }
-
-    function confirmCancel(rentalId) {
-        Swal.fire({
-            title: 'Batalkan Penyewaan?',
-            text: 'Motor akan tersedia kembali dan transaksi dibatalkan.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Batalkan',
-            cancelButtonText: 'Kembali'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/rentals/${rentalId}/cancel`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(() => location.reload());
-            }
-        });
-    }
-</script>
-@endpush

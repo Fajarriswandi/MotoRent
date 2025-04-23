@@ -253,3 +253,26 @@ body {
         font-size: 14px;
     }
 }
+
+@media (max-width: 600px) {
+    .input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-group>* {
+        width: 100%;
+    }
+    .inputGroupResponsive{
+        width: 100% !important;
+    }
+    
+}
+
+.custom-filter-input {
+    max-width: 200px;
+}
+
+.custom-filter-select {
+    max-width: 150px;
+}

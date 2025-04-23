@@ -198,7 +198,9 @@
                                 <tr>
                                     <td>{{ $rental->customer->name }}</td>
                                     <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($rental->end_date)->format('d M Y') }}</td>
+                                    <!-- <td>{{ \Carbon\Carbon::parse($rental->end_date)->format('d M Y') }}</td> -->
+                                     <td><span class="badge bg-danger text-white fw-normal">Segera Selesaikan</span></td>
+                                     
                                 </tr>
                                 @empty
                                 <tr>
@@ -208,7 +210,7 @@
                             </tbody>
                         </table>
 
-                        <a href="{{ route('motorbikes.index') }}" class="ps-4 ms-2 btn btn-link"><x-icon name="mynaui:external-link" class="sm me-1" /> Selengkapnya</a>
+                        <a href="{{ route('admin.rentals.index') }}" class="ps-4 ms-2 btn btn-link"><x-icon name="mynaui:external-link" class="sm me-1" /> Selengkapnya</a>
 
                     </div>
                 </div>
