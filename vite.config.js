@@ -5,7 +5,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/sass/app.scss',
+                'resources/scss/app.scss',
                 'resources/js/app.js',
             ],
             refresh: true,
@@ -16,7 +16,7 @@ export default defineConfig({
         outDir: 'public/build',
         rollupOptions: {
             input: [
-                'resources/sass/app.scss',
+                'resources/scss/app.scss',
                 'resources/js/app.js',
             ],
         },
