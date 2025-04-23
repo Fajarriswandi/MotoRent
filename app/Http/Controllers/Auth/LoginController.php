@@ -1,31 +1,16 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;   // Tambahkan ini
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
-
-
     use AuthenticatesUsers;
-
-
-    // protected $redirectTo = '/home';
-    // protected function redirectTo()
-    // {
-    //     if (auth()->user()->role === 'admin') {
-    //         return '/admin/dashboard';
-    //     }
-
-    //     if (auth()->user()->role === 'customer') {
-    //         return '/customer/dashboard';
-    //     }
-
-    //     return '/';
-    // }
 
     public function showLoginForm(Request $request)
     {
@@ -36,11 +21,15 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-
-
-
     protected function authenticated(Request $request, $user)
     {
+        // 🔹 Tambahkan Log untuk debug
+        Log::info('User berhasil login', [
+            'user_id' => $user->id,
+            'email'   => $user->email,
+            'role'    => $user->role
+        ]);
+
         if (session()->has('url.intended')) {
             return redirect()->intended();
         }
@@ -56,13 +45,6 @@ class LoginController extends Controller
 
         return redirect('/');
     }
-
-
-
-
-
-
-
 
     public function __construct()
     {
