@@ -11,4 +11,14 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        manifest: true,
+        outDir: 'public/build',
+        rollupOptions: {
+            input: [
+                'resources/sass/app.scss',
+                'resources/js/app.js',
+            ],
+        },
+    },
 });
