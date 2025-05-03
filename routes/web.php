@@ -18,6 +18,11 @@ Route::get('/cek-waktu', function () {
     return now()->timezone('Asia/Jakarta')->format('Y-m-d H:i:s');
 });
 
+Route::get('/vite-test', function () {
+    return env('VITE_DEV_SERVER_URL');
+});
+
+
 // 🔁 Redirect dashboard berdasarkan role
 Route::get('/dashboard', function () {
     if (Auth::check()) {

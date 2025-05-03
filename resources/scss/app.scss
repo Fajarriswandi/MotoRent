@@ -1,4 +1,5 @@
 // resources/scss/app.scss
+@import 'bootstrap/scss/bootstrap';
 
 $primary: #1977D1;
 $secondary: #01958A;
@@ -36,6 +37,7 @@ $cardBodyDark: #D5E6EE;
 }
 
 body {
+    // background: #e20808;
     background: #D5E6EE;
     color: $text;
 }
