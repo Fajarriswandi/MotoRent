@@ -18,9 +18,9 @@ Route::get('/cek-waktu', function () {
     return now()->timezone('Asia/Jakarta')->format('Y-m-d H:i:s');
 });
 
-Route::get('/vite-test', function () {
-    return env('VITE_DEV_SERVER_URL');
-});
+// Route::get('/vite-test', function () {
+//     return env('VITE_DEV_SERVER_URL');
+// });
 
 
 // 🔁 Redirect dashboard berdasarkan role
@@ -52,16 +52,19 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::middleware('permission:motorbikes,delete')->delete('/motorbikes/{motorbike}', [MotorbikeController::class, 'destroy'])->name('motorbikes.destroy');
     Route::get('motorbikes/{motorbike}/show', [MotorbikeController::class, 'showAdmin'])->name('motorbikes.admin.show');
 
-    // Rentals
+    // Rentals - Admin
     Route::middleware('permission:rentals,read')->get('/rentals', [RentalAdminController::class, 'index'])->name('admin.rentals.index');
     Route::middleware('permission:rentals,create')->get('/rentals/create', [RentalAdminController::class, 'create'])->name('admin.rentals.create');
     Route::middleware('permission:rentals,create')->post('/rentals', [RentalAdminController::class, 'store'])->name('admin.rentals.store');
+    Route::middleware('permission:rentals,read')->get('/rentals/{rental}', [RentalAdminController::class, 'show'])->name('admin.rentals.show');
+    Route::middleware('permission:rentals,edit')->get('/rentals/{rental}/edit', [RentalAdminController::class, 'edit'])->name('admin.rentals.edit');
+    Route::middleware('permission:rentals,edit')->put('/rentals/{rental}', [RentalAdminController::class, 'update'])->name('admin.rentals.update');
     Route::middleware('permission:rentals,edit')->post('/rentals/{rental}/complete', [RentalAdminController::class, 'complete'])->name('admin.rentals.complete');
     Route::middleware('permission:rentals,edit')->post('/rentals/{rental}/cancel', [RentalAdminController::class, 'cancel'])->name('admin.rentals.cancel');
     Route::middleware('permission:rentals,delete')->delete('/rentals/{rental}', [RentalAdminController::class, 'destroy'])->name('admin.rentals.destroy');
     Route::middleware('permission:rentals,read')->get('/rentals/{rental}/invoice', [RentalAdminController::class, 'invoice'])->name('admin.rentals.invoice');
-    Route::post('/rentals/{rental}/status', [RentalAdminController::class, 'updateStatus'])->name('admin.rentals.updateStatus');
-    Route::post('/rentals/{rental}/approve', [RentalController::class, 'approve'])->name('admin.rentals.approve');
+    
+
 
     // Customers
     Route::middleware('permission:customers,read')->get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');

@@ -34,6 +34,9 @@ $cardBodyDark: #D5E6EE;
 
 .btn-primary {
     @extend .bgPrimaryCostume;
+    // border-radius: 10px;
+    // padding-top: 10px;
+    // padding-bottom: 10px;
 }
 
 body {
@@ -236,7 +239,7 @@ body {
 
 .table-striped {
     --bs-table-striped-bg: #F6F8FF; // warna background baris ganjil
-    --bs-table-striped-color: $text; // warna teks di baris ganjil
+    // --bs-table-striped-color: orange; // warna teks di baris ganjil
     border-color: transparent !important;
 }
 
@@ -265,10 +268,11 @@ body {
     .input-group>* {
         width: 100%;
     }
-    .inputGroupResponsive{
+
+    .inputGroupResponsive {
         width: 100% !important;
     }
-    
+
 }
 
 .custom-filter-input {
@@ -277,4 +281,134 @@ body {
 
 .custom-filter-select {
     max-width: 150px;
+}
+
+.loginContainer {
+    .card {
+        width: 500px;
+        border-radius: 15px;
+        padding: 35px;
+
+        img {
+            text-align: center;
+            margin: 0 auto;
+            display: table;
+        }
+    }
+}
+
+.table {
+    tr {
+        td {
+            color: $text;
+        }
+
+        th {
+            color: $text;
+        }
+    }
+
+    .tableHeader {
+        --bs-table-color: $text;
+        --bs-table-bg: #ffffff;
+        --bs-table-border-color: rgba(198, 199, 200, 0.535);
+        --bs-table-striped-bg: rgb(235.6, 236.55, 237.5);
+        --bs-table-striped-color: #000;
+        --bs-table-active-bg: rgb(223.2, 224.1, 225);
+        --bs-table-active-color: #000;
+        --bs-table-hover-bg: rgb(229.4, 230.325, 231.25);
+        --bs-table-hover-color: #000;
+        color: var(--bs-table-color);
+        border-color: var(--bs-table-border-color);
+
+        tr {
+            th {
+                padding: 15px 0;
+                // font-weight: normal;
+            }
+        }
+    }
+}
+
+.pagination {
+    li {
+        &.page-item {
+            .page-link {
+                background: transparent;
+                border-color: transparent;
+                color: $text;
+            }
+        }
+
+        &.active {
+            .page-link {
+                background: #848789;
+                border-color: #7b7f82;
+                color: white;
+                border-radius: 10px;
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+        }
+
+        span {}
+
+        a {}
+    }
+}
+
+.headerForm {
+    color: $text;
+    background: $cardHeader;
+
+    margin-top: 74px;
+    padding: 25px 55px;
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.dropdown-menu {
+    min-width: 180px;
+    z-index: 1050; // pastikan muncul di atas elemen lain
+    font-size: 0.9rem;
+}
+
+.table-responsive {
+    overflow: visible !important;
+    position: relative;
+}
+
+.imageThumbTable{
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+.titleCardIcon{
+    display: flex;
+    align-items: center;
+    span{
+        background: #f0ff7d49;
+        display: flex;
+        color: rgb(92, 120, 0);
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        border-radius: 50px;
+        margin-right: 5px;
+    }
+    h4{
+        font-size: 22px;
+        font-weight: 600;
+        color: $text;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
 }
