@@ -22,17 +22,17 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
-        // if ($request->hasFile('profile_photo')) {
-        //     $file = $request->file('profile_photo');
-        //     $path = $file->store('profile_photos', 'public');
-        //     $user->profile_photo = $path;
-        // }
-
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $path = $file->store('profile_photos', 'cloudinary');
+            $path = $file->store('profile_photos', 'public');
             $user->profile_photo = $path;
         }
+
+        // if ($request->hasFile('profile_photo')) {
+        //     $file = $request->file('profile_photo');
+        //     $path = $file->store('profile_photos', 'cloudinary');
+        //     $user->profile_photo = $path;
+        // }
 
         $user->name = $request->name;
         $user->phone = $request->phone;

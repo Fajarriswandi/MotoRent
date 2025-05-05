@@ -23,6 +23,27 @@ services:
             - sail
         depends_on:
             - mysql
+
+    scheduler:
+        build:
+            context: './vendor/laravel/sail/runtimes/8.4'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.4/scheduler'
+        restart: unless-stopped
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+        entrypoint: >
+            sh -c "cd /var/www/html && while true; do php artisan schedule:run; sleep 60; done"
+
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -47,9 +68,11 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+
 networks:
     sail:
         driver: bridge
+
 volumes:
     sail-mysql:
         driver: local

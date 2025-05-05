@@ -39,11 +39,11 @@
                     <div class="col-md-4">
                         <div class="mb-2">
                             <small>Start Time</small>
-                            <p>{{ $rental->start_date }}</p>
+                            <p>{{ \Carbon\Carbon::parse($rental->start_date)->translatedFormat('d F Y') }}</p>
                         </div>
                         <div class="mb-2">
                             <small>End time</small>
-                            <p>{{ $rental->end_date }}</p>
+                            <p>{{ \Carbon\Carbon::parse($rental->end_date)->translatedFormat('d F Y') }}</p>
                         </div>
                     </div>
 

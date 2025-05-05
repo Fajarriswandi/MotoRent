@@ -2,18 +2,16 @@
 
 @section('content')
     <form action="{{ route('admin.rentals.store') }}" method="POST">
-
         <div class="headerForm">
             <div class="content container">
                 <div>
-                    <h4>Reltal Form</h4>
-                    <p>Please fill in all tht details.</p>
+                    <h4>Rental Form</h4>
+                    <p>Please fill in all the details.</p>
                 </div>
                 <div>
                     <div class="mt-4 d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status"
-                                aria-hidden="true"></span>
+                            <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
                             <span id="submitText">Confirm & Save</span>
                         </button>
                     </div>
@@ -26,44 +24,62 @@
                 <div class="card-body">
 
                     @csrf
+
+                    {{-- Customer --}}
                     <div class="mb-3">
                         <label class="form-label">Pilih Customer</label>
                         <select name="customer_id" class="form-select" required>
-                            <option value="" disabled selected>-- Pilih Customer --</option>
+                            <option value="" disabled {{ old('customer_id') ? '' : 'selected' }}>-- Pilih Customer --</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}">{{ $customer->name }} ({{ $customer->email }})</option>
+                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                    {{ $customer->name }} ({{ $customer->email }})
+                                </option>
                             @endforeach
                         </select>
+                        @error('customer_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
+                    {{-- Motorbike --}}
                     <div class="mb-3">
                         <label class="form-label">Pilih Motor</label>
                         <select name="motorbike_id" class="form-select" required>
-                            <option value="" disabled selected>-- Pilih Motor --</option>
+                            <option value="" disabled {{ old('motorbike_id') ? '' : 'selected' }}>-- Pilih Motor --</option>
                             @foreach($motorbikes as $motorbike)
-                                <option value="{{ $motorbike->id }}">
+                                <option value="{{ $motorbike->id }}" {{ old('motorbike_id') == $motorbike->id ? 'selected' : '' }}>
                                     {{ $motorbike->brand }} {{ $motorbike->model }} - {{ $motorbike->license_plate }}
                                     ({{ ucfirst($motorbike->technical_status) }})
                                 </option>
                             @endforeach
                         </select>
+                        @error('motorbike_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
+                    {{-- Start Date --}}
                     <div class="mb-3">
                         <label class="form-label">Tanggal Mulai Sewa</label>
-                        <input type="date" name="start_date" class="form-control" required>
+                        <input type="date" name="start_date" class="form-control" value="{{ old('start_date') }}" required>
+                        @error('start_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
+                    {{-- End Date --}}
                     <div class="mb-3">
                         <label class="form-label">Tanggal Akhir Sewa</label>
-                        <input type="date" name="end_date" class="form-control" required>
+                        <input type="date" name="end_date" class="form-control" value="{{ old('end_date') }}" required>
+                        @error('end_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
                 </div>
             </div>
         </div>
     </form>
-
 @endsection
 
 @push('scripts')

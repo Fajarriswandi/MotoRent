@@ -52,9 +52,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Rentals - Admin
     Route::middleware('permission:rentals,read')->group(function () {
         Route::get('/rentals', [RentalAdminController::class, 'index'])->name('admin.rentals.index');
+        Route::get('/rentals/create', [RentalAdminController::class, 'create'])->name('admin.rentals.create'); // <- pindah ke atas
         Route::get('/rentals/{rental}', [RentalAdminController::class, 'show'])->name('admin.rentals.show');
         Route::get('/rentals/{rental}/invoice', [RentalAdminController::class, 'invoice'])->name('admin.rentals.invoice');
     });
+    Route::middleware('permission:rentals,create')->post('/rentals', [RentalAdminController::class, 'store'])->name('admin.rentals.store');
+
     Route::middleware('permission:rentals,create')->group(function () {
         Route::get('/rentals/create', [RentalAdminController::class, 'create'])->name('admin.rentals.create');
         Route::post('/rentals', [RentalAdminController::class, 'store'])->name('admin.rentals.store');

@@ -83,7 +83,11 @@
                                 </td>
                                 <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
                                 <td>{{ $rental->customer?->name ?? '-' }}</td>
-                                <td>Start {{ $rental->start_date }} <br> End {{ $rental->end_date }}</td>
+                                <td>
+                                    Start {{ \Carbon\Carbon::parse($rental->start_date)->translatedFormat('d F Y') }} <br>
+                                    End {{ \Carbon\Carbon::parse($rental->end_date)->translatedFormat('d F Y') }}
+                                </td>
+
                                 <td>Rp{{ number_format($rental->total_price, 0, ',', '.') }}</td>
                                 <td>
                                     @if($rental->is_completed)
