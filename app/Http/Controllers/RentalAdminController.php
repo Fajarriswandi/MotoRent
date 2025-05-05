@@ -25,14 +25,11 @@ class RentalAdminController extends Controller
         }
 
         // 📅 Filter Tanggal Mulai
-        if ($request->filled('start_date')) {
-            $query->whereDate('start_date', '>=', $request->start_date);
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('start_date', '<=', $request->end_date)
+                ->whereDate('end_date', '>=', $request->start_date);
         }
 
-        // 📅 Filter Tanggal Akhir
-        if ($request->filled('end_date')) {
-            $query->whereDate('end_date', '<=', $request->end_date);
-        }
 
         // ⚡ Filter Status Penyewaan
         if ($request->filled('status')) {
