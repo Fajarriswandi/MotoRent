@@ -25,14 +25,11 @@ class RentalAdminController extends Controller
         }
 
         // 📅 Filter Tanggal Mulai
-        if ($request->filled('start_date')) {
-            $query->whereDate('start_date', '>=', $request->start_date);
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('start_date', '<=', $request->end_date)
+                ->whereDate('end_date', '>=', $request->start_date);
         }
 
-        // 📅 Filter Tanggal Akhir
-        if ($request->filled('end_date')) {
-            $query->whereDate('end_date', '<=', $request->end_date);
-        }
 
         // ⚡ Filter Status Penyewaan
         if ($request->filled('status')) {
@@ -57,6 +54,108 @@ class RentalAdminController extends Controller
 
         return view('admin.rentals.index', compact('rentals'));
     }
+
+
+    public function show(Rental $rental)
+    {
+        $rental->load(['motorbike', 'customer']);
+
+        // Ambil histori penyewa motor yang sama
+        $rentalHistory = Rental::with('customer')
+            ->where('motorbike_id', $rental->motorbike_id)
+            ->where('id', '!=', $rental->id)
+            ->latest()
+            ->get();
+
+        return view('admin.rentals.show', compact('rental', 'rentalHistory'));
+    }
+
+    public function edit(Rental $rental)
+    {
+        $customers = Customer::all();
+        $motorbikes = Motorbike::all();
+        return view('admin.rentals.edit', compact('rental', 'customers', 'motorbikes'));
+    }
+
+    public function update(Request $request, Rental $rental)
+    {
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'motorbike_id' => 'required|exists:motorbikes,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        // Optional: bisa tambahkan pengecekan jika tanggal diubah menjadi invalid di masa lalu
+        if (Carbon::parse($request->start_date)->lt(now()) && $rental->start_date != $request->start_date) {
+            return redirect()->back()->with('rental_conflict', 'Tanggal mulai tidak boleh diubah ke masa lalu.');
+        }
+
+        // ❌ Jangan izinkan edit jika rental sudah berjalan
+        if (Carbon::parse($rental->start_date)->isPast()) {
+            return redirect()->back()->with('rental_conflict', 'Penyewaan yang sudah berjalan tidak bisa diedit.');
+        }
+
+        $motorbike = Motorbike::findOrFail($request->motorbike_id);
+
+        if ($motorbike->technical_status !== 'active') {
+            return redirect()->back()->with('rental_conflict', 'Motor ini sedang tidak aktif.');
+        }
+
+        // Validasi konflik jadwal baru (jangan cek terhadap rental ini sendiri)
+        $conflict = Rental::where('motorbike_id', $motorbike->id)
+            ->where('id', '!=', $rental->id)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_date', [$request->start_date, $request->end_date])
+                    ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                    ->orWhere(function ($q) use ($request) {
+                        $q->where('start_date', '<=', $request->start_date)
+                            ->where('end_date', '>=', $request->end_date);
+                    });
+            })
+            ->where('is_cancelled', false)
+            ->where('is_completed', false)
+            ->exists();
+
+        if ($conflict) {
+            return redirect()->back()->with('rental_conflict', 'Motor ini sudah dibooking dalam rentang tanggal tersebut.');
+        }
+
+        $priceDay = (int) $motorbike->rental_price_day;
+        $days = Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1;
+        $total = $priceDay * $days;
+
+        $rental->update([
+            'customer_id' => $request->customer_id,
+            'motorbike_id' => $motorbike->id,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'price_day' => $priceDay,
+            'total_price' => $total,
+        ]);
+
+        // return redirect()->route('admin.rentals.index')->with('success', 'Data penyewaan berhasil diperbarui.');
+
+        if (Carbon::parse($rental->start_date)->isPast()) {
+            return redirect()->route('admin.rentals.edit', $rental->id)
+                ->with('rental_conflict', 'Penyewaan ini sudah berjalan, tidak bisa diedit.');
+        }
+
+        if ($motorbike->technical_status !== 'active') {
+            return redirect()->route('admin.rentals.edit', $rental->id)
+                ->with('rental_conflict', 'Motor ini sedang tidak aktif atau dalam perawatan.');
+        }
+
+        if ($conflict) {
+            return redirect()->route('admin.rentals.edit', $rental->id)
+                ->with('rental_conflict', 'Motor ini sudah dibooking dalam rentang tanggal tersebut!');
+        }
+
+        return redirect()->route('admin.rentals.index')->with('success', 'Data penyewaan berhasil diperbarui.');
+
+    }
+
+
 
     public function create()
     {

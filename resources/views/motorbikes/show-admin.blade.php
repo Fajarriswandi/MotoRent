@@ -1,72 +1,96 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h3 class="mb-4">Detail Motor (Admin)</h3>
+    <div class="container mt-5 pt-5">
+        <a href="{{ route('motorbikes.index') }}" class="btn mb-3"><i class="bi bi-arrow-left"></i> </a>
 
-        <div class="row">
-            <div class="col-md-5">
-                @if($motorbike->image)
-                    <img src="{{ asset('storage/' . $motorbike->image) }}" class="img-fluid rounded shadow-sm mb-3"
-                        alt="Foto Motor">
-                @else
-                    <div class="bg-light text-center py-5 border rounded">Tidak ada gambar</div>
-                @endif
+
+        <div class="card widgetCard">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="titleCardIcon">
+                        <span><x-icon name="solar:calendar-broken" class="sm" /></span>
+                        <h4>Detail Motor</h4>
+                    </div>
+                    <div>
+                        @if (canAccess('motorbikes', 'edit'))
+                            <a href="{{ route('motorbikes.edit', $motorbike->id) }}" class="btn"><i
+                                    class="bi bi-pencil-square me-1"></i> Edit</a>
+
+                        @endif
+                    </div>
+                </div>
             </div>
-            <div class="col-md-7">
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Merek</th>
-                        <td>{{ $motorbike->brand }}</td>
-                    </tr>
-                    <tr>
-                        <th>Model</th>
-                        <td>{{ $motorbike->model }}</td>
-                    </tr>
-                    <tr>
-                        <th>Tahun</th>
-                        <td>{{ $motorbike->year }}</td>
-                    </tr>
-                    <tr>
-                        <th>Warna</th>
-                        <td>{{ $motorbike->color }}</td>
-                    </tr>
-                    <tr>
-                        <th>Nomor Plat</th>
-                        <td>{{ $motorbike->license_plate }}</td>
-                    </tr>
-                    <tr>
-                        <th>Status Teknis</th>
-                        <td>
-                            <span class="badge bg-{{ 
-                                            $motorbike->technical_status === 'active' ? 'success' :
-        ($motorbike->technical_status === 'maintenance' ? 'secondary' : 'danger') 
-                                        }}">
-                                {{ ucfirst($motorbike->technical_status) }}
-                            </span>
-                        </td>
-                    </tr>
 
-                    <tr>
-                        <th>Harga per Hari</th>
-                        <td>Rp{{ number_format($motorbike->rental_price_day, 0, ',', '.') }}</td>
-                    </tr>
-                   
-                    <tr>
-                        <th>Dibuat pada</th>
-                        <td>{{ $motorbike->created_at->format('d M Y H:i') }}</td>
-                    </tr>
-                    <tr>
-                        <th>Terakhir diperbarui</th>
-                        <td>{{ $motorbike->updated_at->format('d M Y H:i') }}</td>
-                    </tr>
-                </table>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card bg-white widgetCard h-100">
+                        <div class="card-body">
+                            <h5 class="mb-4">{{ $motorbike->brand }} {{ $motorbike->model }}</h5>
 
-                <h4 class="mt-5">Jadwal Penyewaan</h4>
+                            @if($motorbike && $motorbike->image)
+                                <img src="{{ asset('storage/' . $motorbike->image) }}" alt="" class="img-fluid">
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light widgetCard h-100">
+                        <div class="card-body">
+                            <h5 class="mb-4">Detail Motor</h5>
+                            <div class="mb-2">
+                                <small>License Plate</small>
+                                <p>{{ $motorbike->license_plate }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <small>Technical Status</small>
+                                <p>
+                                    <span
+                                        class="badge bg-{{ 
+                                                                                 $motorbike->technical_status === 'active' ? 'success' : ($motorbike->technical_status === 'maintenance' ? 'secondary' : 'danger') }}">
+                                        {{ ucfirst($motorbike->technical_status) }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="mb-2">
+                                <small>Year</small>
+                                <p>{{ $motorbike->year }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <small>Color</small>
+                                <p>{{ $motorbike->color }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <small>Price Per Day</small>
+                                <p>Rp{{ number_format($motorbike->rental_price_day, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card widgetCard mb-5">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="titleCardIcon">
+                        <span><x-icon name="solar:calendar-broken" class="sm" /></span>
+                        <h4>Jadwal Penyewaan</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead class="table-light">
+                    <table class="table  table-striped table-hover align-middle">
+                        <thead class="tableHeader">
                             <tr>
                                 <th>Customer</th>
                                 <th>Tanggal Sewa</th>
@@ -76,60 +100,60 @@
                         </thead>
                         <tbody>
                             @forelse ($motorbike->rentals->sortByDesc('start_date') as $rental)
-                                                    @php
-                                                        $today = \Carbon\Carbon::today();
-                                                        $start = \Carbon\Carbon::parse($rental->start_date);
-                                                        $end = \Carbon\Carbon::parse($rental->end_date);
+                                @php
+                                    $today = \Carbon\Carbon::today();
+                                    $start = \Carbon\Carbon::parse($rental->start_date);
+                                    $end = \Carbon\Carbon::parse($rental->end_date);
 
-                                                        if ($rental->is_cancelled) {
-                                                            $status = 'Dibatalkan';
-                                                            $badge = 'danger';
-                                                        } elseif ($rental->is_completed) {
-                                                            $status = 'Selesai';
-                                                            $badge = 'secondary';
-                                                        } elseif ($start->gt($today)) {
-                                                            $status = 'Mendatang';
-                                                            $badge = 'info';
-                                                        } else {
-                                                            $status = 'Aktif';
-                                                            $badge = 'success';
-                                                        }
-                                                    @endphp
+                                    if ($rental->is_cancelled) {
+                                        $status = 'Dibatalkan';
+                                        $badge = 'danger';
+                                    } elseif ($rental->is_completed) {
+                                        $status = 'Selesai';
+                                        $badge = 'secondary';
+                                    } elseif ($start->gt($today)) {
+                                        $status = 'Mendatang';
+                                        $badge = 'info';
+                                    } else {
+                                        $status = 'Aktif';
+                                        $badge = 'success';
+                                    }
+                                @endphp
 
-                                                    @php
-                                                        $icons = [
-                                                            'Aktif' => 'bi-check-circle-fill',
-                                                            'Mendatang' => 'bi-clock-fill',
-                                                            'Selesai' => 'bi-flag-fill',
-                                                            'Dibatalkan' => 'bi-x-circle-fill'
-                                                        ];
-                                                    @endphp
+                                @php
+                                    $icons = [
+                                        'Aktif' => 'bi-check-circle-fill',
+                                        'Mendatang' => 'bi-clock-fill',
+                                        'Selesai' => 'bi-flag-fill',
+                                        'Dibatalkan' => 'bi-x-circle-fill'
+                                    ];
+                                @endphp
 
-                                                    <tr>
-                                                        <td>{{ $rental->customer->name ?? '-' }}</td>
-                                                        <td>{{ $start->translatedFormat('d M Y') }} - {{ $end->translatedFormat('d M Y') }}</td>
-                                                        <td>
-                                                            <span class="badge bg-{{ $badge }}">
-                                                                <i class="bi {{ $icons[$status] ?? 'bi-question-circle-fill' }} me-1"></i>
-                                                                {{ $status }}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            @if (!$rental->is_cancelled && !$rental->is_completed)
-                                                                <form method="POST" action="{{ route('admin.rentals.cancel', $rental->id) }}"
-                                                                    class="cancel-form" data-rental-id="{{ $rental->id }}">
-                                                                    @csrf
-                                                                    <button class="btn btn-sm btn-danger">
-                                                                        <i class="bi bi-trash-fill"></i>
-                                                                    </button>
+                                <tr>
+                                    <td>{{ $rental->customer->name ?? '-' }}</td>
+                                    <td>{{ $start->translatedFormat('d M Y') }} - {{ $end->translatedFormat('d M Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $badge }}">
+                                            <i class="bi {{ $icons[$status] ?? 'bi-question-circle-fill' }} me-1"></i>
+                                            {{ $status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!$rental->is_cancelled && !$rental->is_completed)
+                                            <form method="POST" action="{{ route('admin.rentals.cancel', $rental->id) }}"
+                                                class="cancel-form" data-rental-id="{{ $rental->id }}">
+                                                @csrf
+                                                <button class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
 
-                                                                </form>
-                                                            @else
-                                                                <span class="text-muted">—</span>
-                                                            @endif
-                                                        </td>
+                                            </form>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
 
-                                                    </tr>
+                                </tr>
                             @empty
                                 <tr>
                                     <td colspan="4" class="text-center">Belum ada penyewaan.</td>
@@ -139,12 +163,12 @@
                         </tbody>
                     </table>
                 </div>
-
-
-                <a href="{{ route('motorbikes.edit', $motorbike->id) }}" class="btn btn-warning">Edit Motor</a>
-                <a href="{{ route('motorbikes.index') }}" class="btn btn-secondary">Kembali</a>
             </div>
         </div>
+
+
+    </div>
+    </div>
     </div>
 
     @push('scripts')
