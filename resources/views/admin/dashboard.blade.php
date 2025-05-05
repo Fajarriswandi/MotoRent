@@ -10,13 +10,6 @@
             </div>
             <div class="p-2">
 
-                <!-- <div class="input-group">
-                    <input type="text" aria-label="First name" class="form-control">
-                    <input type="text" aria-label="Last name" class="form-control">
-                    <button class="btn btn-outline-secondary" type="button">Filter</button>
-                    <button class="btn btn-outline-secondary" type="button">Clear</button>
-                </div> -->
-
                 {{-- Filter Tanggal --}}
                 <form method="GET" class="mb-4">
                     <div class="input-group">
