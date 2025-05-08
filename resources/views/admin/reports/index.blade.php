@@ -1,278 +1,229 @@
 @extends('layouts.app')
 
 @section('content')
-<h3 class="mb-4">Laporan Penyewaan</h3>
+<br><br><br><br>
+<div class="container py-4">
+    <!-- Date Filter -->
+    <div class="card widgetCard mb-4 shadow-sm">
+        <div class="card-body d-flex flex-wrapx gap-2x align-items-center justify-content-between">
+            <form method="GET" class="d-flex flex-wrap gap-2">
+                <div class="form-floating">
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $startDate }}">
+                    <label for="start_date">Start Date</label>
+                </div>
+                <div class="form-floating">
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $endDate }}">
+                    <label for="end_date">End Date</label>
+                </div>
+                <button type="submit" class="btn btn-outline-secondary ps-4 pe-4">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary d-flex align-items-center ps-4 pe-4 ">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </a>
 
-<div class="d-flex justify-content-end mb-3 gap-2">
-    <a href="{{ route('reports.export.pdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-        class="btn btn-outline-danger" target="_blank">
-        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-    </a>
-    <a href="{{ route('reports.export.excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-        class="btn btn-outline-success">
-        <i class="bi bi-file-earmark-excel"></i> Export Excel
-    </a>
-</div>
+            </form>
+            <div>
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <a type="button"
+                        href="{{ route('reports.export.pdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                        class="
+                                btn btn-outline-secondary pt-3 pb-3 ps-3 pe-3"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
 
-
-{{-- Form Filter --}}
-<form method="GET" class="mb-4">
-    <div class="input-group">
-        <input
-            type="date"
-            name="start_date"
-            class="form-control"
-            value="{{ $startDate }}"
-            placeholder="Tanggal Mulai">
-        <input
-            type="date"
-            name="end_date"
-            class="form-control"
-            value="{{ $endDate }}"
-            placeholder="Tanggal Akhir">
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-funnel"></i> Filter
-        </button>
-        <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-clockwise"></i> Reset
-        </a>
-    </div>
-</form>
-
-
-{{-- Ringkasan --}}
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-primary shadow-sm">
-            <div class="card-body">
-                <h6>Total Sewa</h6>
-                <h4>{{ $summary['total_rentals'] }}</h4>
+                    <a type="button"
+                        href="{{ route('reports.export.excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
+                        class="
+                                btn btn-outline-secondary pt-3 pb-3 ps-3 pe-3"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-success shadow-sm">
-            <div class="card-body">
-                <h6>Total Pendapatan</h6>
-                <h4>Rp{{ number_format($summary['total_revenue'], 0, ',', '.') }}</h4>
+
+    <!-- Financial Performance -->
+    <div class="card widgetCard mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-semibold mb-3">Financial Performance</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="border rounded p-3 h-100">
+                        <h6>Total Revenue</h6>
+                        <h4 class="fw-bold">Rp {{ number_format($summary['total_revenue'], 0, ',', '.') }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 h-100">
+                        <h6>Average Revenue Per Transaction</h6>
+                        <h4 class="fw-bold">Rp {{ number_format($summary['average_revenue'], 0, ',', '.') }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 h-100">
+                        <h6>Highest Daily Revenue</h6>
+                        <h4 class="fw-bold">Rp {{ number_format($summary['highest_daily_revenue'], 0, ',', '.') }}</h4>
+                    </div>
+                </div>
+            </div>
+            <h6 class="mb-3">Daily Revenue</h6>
+            <canvas id="chartRevenue" height="120"></canvas>
+        </div>
+    </div>
+
+    <!-- Business Performance and Top Motor -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card widgetCard h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Business Performance</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Total Rentals</h6>
+                                <h4 class="fw-bold">{{ $summary['total_rentals'] }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Unique Customers</h6>
+                                <h4 class="fw-bold">{{ $summary['unique_customers'] }}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Repeat Customer Rate</h6>
+                                <h4 class="fw-bold">{{ $summary['repeat_customer_rate'] }}%</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Cancellation Rate</h6>
+                                <h4 class="fw-bold">{{ $summary['cancellation_rate'] }}%</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Fleet Utilization</h6>
+                                <h4 class="fw-bold">{{ $summary['fleet_utilization'] }}%</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card widgetCard h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Top Rented Motorcycles</h5>
+                    <div class="p-2">
+                        <canvas id="chartTopMotor" height="180"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-warning shadow-sm">
-            <div class="card-body">
-                <h6>Customer Unik</h6>
-                <h4>{{ $summary['unique_customers'] }}</h4>
+
+    <!-- Bonus Insight -->
+    <div class="card widgetCard shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-row align-items-center justify-content-between mb-3">
+                <h5 class="fw-semibold">Anual Income</h5>
+                <form method="GET" class="mb-4">
+                    <div class="d-flex gap-2 align-items-center">
+                        <label for="year" class="form-label mb-0">Select Year:</label>
+                        <select id="yearSelector" class="form-select form-select-sm w-auto">
+                            @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                            <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </form>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-info shadow-sm">
-            <div class="card-body">
-                <h6>Motor Terfavorit</h6>
-                @if($summary['top_motorbike'])
-                <h6 class="mb-0">{{ $summary['top_motorbike']->brand }} {{ $summary['top_motorbike']->model }}</h6>
-                <small class="text-muted">{{ $summary['top_motorbike']->license_plate }}</small>
-                @else
-                <p class="text-muted mb-0">-</p>
-                @endif
-            </div>
+            <canvas id="monthlyChart" height="100"></canvas>
         </div>
     </div>
 </div>
 
-{{-- Grafik Harian--}}
-<div class="row g-4 mb-4">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Grafik Jumlah Penyewaan (Per Hari)</h5>
-                <canvas id="dailyChart" height="120"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Status Penyewaan</h5>
-                <canvas id="statusPie" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Grafik Bulanan --}}
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <h5 class="card-title">Grafik Penyewaan 12 Bulan Terakhir</h5>
-        <canvas id="monthlyChart" height="100"></canvas>
-    </div>
-</div>
-
-{{-- Grafik Mingguan --}}
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <h5 class="card-title">Penyewaan 7 Hari Terakhir</h5>
-        <canvas id="weeklyChart" height="100"></canvas>
-    </div>
-</div>
-
-
-
-{{-- Tabel Hasil --}}
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h5 class="card-title">Data Penyewaan</h5>
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Tanggal</th>
-                        <th>Motor</th>
-                        <th>Customer</th>
-                        <th>Total Harga</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($rentals as $rental)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $rental->start_date }} - {{ $rental->end_date }}</td>
-                        <td>{{ $rental->motorbike->brand }} {{ $rental->motorbike->model }}</td>
-                        <td>{{ $rental->customer->name }}</td>
-                        <td>Rp{{ number_format($rental->total_price, 0, ',', '.') }}</td>
-                        <td>
-                            @if($rental->is_completed)
-                            <span class="badge bg-success">Selesai</span>
-                            @elseif($rental->is_cancelled)
-                            <span class="badge bg-danger">Dibatalkan</span>
-                            @else
-                            <span class="badge bg-secondary">Berlangsung</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center">Tidak ada data penyewaan.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-@endsection
-
-
-@push('scripts')
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dailyStats = @json($dailyStats);
-        const statusCounts = @json($statusCounts);
+    // const chartTopMotor = document.getElementById('chartTopMotor');
 
-        // Line Chart - Daily Rentals
-        const dailyCtx = document.getElementById('dailyChart')?.getContext('2d');
-        if (dailyCtx) {
-            new Chart(dailyCtx, {
-                type: 'line',
-                data: {
-                    labels: dailyStats.map(item => item.date),
-                    datasets: [{
-                        label: 'Jumlah Sewa',
-                        data: dailyStats.map(item => item.total),
-                        backgroundColor: '#0d6efd33',
-                        borderColor: '#0d6efd',
-                        borderWidth: 2,
-                        tension: 0.3,
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stepSize: 1
-                        }
-                    }
-                }
-            });
-        }
+    const dailyStats = @json($dailyStats);
 
-        // Pie Chart - Rental Status
-        const pieCtx = document.getElementById('statusPie')?.getContext('2d');
-        if (pieCtx) {
-            new Chart(pieCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Selesai', 'Dibatalkan'],
-                    datasets: [{
-                        data: [
-                            statusCounts.completed ?? 0,
-                            statusCounts.cancelled ?? 0
-                        ],
-                        backgroundColor: ['#198754', '#dc3545']
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-    });
-</script>
-
-
-<script>
-    const monthlyStats = @json($monthlyStats);
-    const weeklyStats = @json($weeklyStats);
-
-    // Grafik Bulanan
-    const monthlyCtx = document.getElementById('monthlyChart')?.getContext('2d');
-    if (monthlyCtx) {
-        new Chart(monthlyCtx, {
-            type: 'bar',
-            data: {
-                labels: monthlyStats.map(item => item.month),
-                datasets: [{
-                    label: 'Jumlah Sewa',
-                    data: monthlyStats.map(item => item.total),
-                    backgroundColor: '#0dcaf0'
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        stepSize: 1
-                    }
+    new Chart(document.getElementById('chartRevenue'), {
+        type: 'line',
+        data: {
+            labels: dailyStats.map(item => item.date),
+            datasets: [{
+                label: 'Daily Revenue',
+                data: dailyStats.map(item => item.total),
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderColor: '#0d6efd',
+                tension: 0.3,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    }
+        }
+    });
 
-    // Grafik Mingguan
-    const weeklyCtx = document.getElementById('weeklyChart')?.getContext('2d');
-    if (weeklyCtx) {
-        new Chart(weeklyCtx, {
-            type: 'line',
+    const topMotorStats = @json($topMotorStats);
+
+    new Chart(document.getElementById('chartTopMotor'), {
+        type: 'bar',
+        data: {
+            labels: topMotorStats.map(item => item.motorbike),
+            datasets: [{
+                label: 'Total Rentals',
+                data: topMotorStats.map(item => item.total),
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    let monthlyChart;
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+
+    function renderMonthlyChart(data) {
+        if (monthlyChart) monthlyChart.destroy();
+
+        monthlyChart = new Chart(monthlyCtx, {
+            type: 'bar',
             data: {
-                labels: weeklyStats.map(item => item.label),
+                labels: data.map(item => item.month),
                 datasets: [{
-                    label: 'Jumlah Sewa',
-                    data: weeklyStats.map(item => item.value),
-                    borderColor: '#ffc107',
-                    backgroundColor: '#ffc10733',
-                    tension: 0.4,
-                    fill: true
+                    label: 'Annual income ',
+                    data: data.map(item => item.total),
+                    backgroundColor: '#0d6efd'
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
                         beginAtZero: true
@@ -281,6 +232,19 @@
             }
         });
     }
+
+    // Initial render
+    renderMonthlyChart(@json($monthlyStats));
+
+    document.getElementById('yearSelector').addEventListener('change', function() {
+        const year = this.value;
+
+        fetch(`{{ route('reports.monthlyData') }}?year=${year}`)
+            .then(res => res.json())
+            .then(data => renderMonthlyChart(data));
+    });
 </script>
 
-@endpush
+
+
+@endsection

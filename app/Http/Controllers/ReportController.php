@@ -16,84 +16,136 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Default tanggal: awal & akhir bulan ini
         $startDate = $request->start_date ?? Carbon::now()->startOfMonth()->toDateString();
         $endDate = $request->end_date ?? Carbon::now()->endOfMonth()->toDateString();
 
-        // Ambil data rental sesuai filter
         $rentals = Rental::with(['motorbike', 'customer'])
             ->whereBetween('start_date', [$startDate, $endDate])
             ->when($request->customer_id, fn($q) => $q->where('customer_id', $request->customer_id))
             ->when($request->motorbike_id, fn($q) => $q->where('motorbike_id', $request->motorbike_id))
             ->get();
 
-        // Ringkasan statistik
-        $summary = [
-            'total_rentals' => $rentals->count(),
-            'total_revenue' => $rentals->sum('total_price'),
-            'unique_customers' => $rentals->pluck('customer_id')->unique()->count(),
-            'top_motorbike' => $rentals->groupBy('motorbike_id')->sortByDesc(fn($g) => $g->count())->first()?->first()->motorbike ?? null,
-        ];
+        $totalRevenue = $rentals->sum('total_price');
 
-        // Data grafik harian (line chart)
-        $dailyStats = Rental::select(
-            DB::raw('DATE(start_date) as date'),
-            DB::raw('COUNT(*) as total')
-        )
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->when($request->customer_id, fn($q) => $q->where('customer_id', $request->customer_id))
-            ->when($request->motorbike_id, fn($q) => $q->where('motorbike_id', $request->motorbike_id))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        $dailyRevenue = collect($rentals)
+            ->groupBy(fn($item) => Carbon::parse($item->start_date)->format('Y-m-d'))
+            ->map(fn($group) => $group->sum('total_price'));
 
-        // Data pie chart status
-        $statusCounts = Rental::selectRaw("
-                SUM(CASE WHEN is_completed = 1 THEN 1 ELSE 0 END) as completed,
-                SUM(CASE WHEN is_cancelled = 1 THEN 1 ELSE 0 END) as cancelled
-            ")
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->when($request->customer_id, fn($q) => $q->where('customer_id', $request->customer_id))
-            ->when($request->motorbike_id, fn($q) => $q->where('motorbike_id', $request->motorbike_id))
-            ->first();
+        $highestDailyRevenue = $dailyRevenue->max() ?? 0;
 
-        // Grafik Bulanan (12 bulan terakhir)
-        $monthlyStats = Rental::select(
-            DB::raw("DATE_FORMAT(start_date, '%Y-%m') as month"),
-            DB::raw("COUNT(*) as total")
-        )
-            ->whereBetween('start_date', [
-                Carbon::now()->subMonths(11)->startOfMonth(),
-                Carbon::now()->endOfMonth()
-            ])
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        $dailyStats = $rentals
+            ->groupBy(fn($rental) => Carbon::parse($rental->start_date)->format('Y-m-d'))
+            ->map(function ($group, $date) {
+                return [
+                    'date' => $date,
+                    'total' => $group->sum('total_price'),
+                ];
+            })
+            ->values();
 
-        // Ringkasan Mingguan (7 hari terakhir)
-        $weeklyStats = collect();
-        for ($i = 6; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
-            $count = Rental::whereDate('start_date', $date)->count();
-            $weeklyStats->push([
-                'label' => $date->format('D, d M'),
-                'value' => $count
-            ]);
+        $customerRentalCounts = $rentals->groupBy('customer_id')->map->count();
+        $repeatCustomerCount = $customerRentalCounts->filter(fn($count) => $count > 1)->count();
+        $uniqueCustomerCount = $customerRentalCounts->count();
+
+        $repeatCustomerRate = $uniqueCustomerCount > 0
+            ? round(($repeatCustomerCount / $uniqueCustomerCount) * 100)
+            : 0;
+
+
+
+        $topMotorStats = $rentals
+            ->groupBy('motorbike_id')
+            ->map(function ($group, $id) {
+                return [
+                    'motorbike' => optional($group->first()->motorbike)->model,
+                    'total' => $group->count(),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values()
+            ->take(5);
+
+        $totalRentals = $rentals->count();
+        $cancelledRentals = $rentals->where('is_cancelled', true)->count();
+
+        $cancellationRate = $totalRentals > 0
+            ? round(($cancelledRentals / $totalRentals) * 100)
+            : 0;
+
+        $motorbikes = Motorbike::all();
+
+        $motorRentedIds = $rentals->pluck('motorbike_id')->unique();
+        $fleetUtilization = $motorbikes->count() > 0
+            ? round(($motorRentedIds->count() / $motorbikes->count()) * 100)
+            : 0;
+
+        $selectedYear = $request->year ?? Carbon::now()->year;
+
+        $monthlyRevenue = Rental::whereYear('start_date', $selectedYear)
+            ->where('is_cancelled', false)
+            ->get()
+            ->groupBy(fn($r) => Carbon::parse($r->start_date)->format('m'))
+            ->map(fn($g) => $g->sum('total_price'))
+            ->toArray();
+
+        // Siapkan semua bulan biar urut 1-12 meskipun tidak semua ada datanya
+        $monthlyStats = [];
+        foreach (range(1, 12) as $month) {
+            $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthlyStats[] = [
+                'month' => Carbon::create()->month($month)->format('M'),
+                'total' => $monthlyRevenue[$monthStr] ?? 0
+            ];
         }
 
 
+        $summary = [
+            'total_revenue' => $totalRevenue,
+            'average_revenue' => $rentals->count() > 0 ? round($totalRevenue / $rentals->count()) : 0,
+            'highest_daily_revenue' => $highestDailyRevenue,
+            'total_rentals' => $rentals->count(),
+            'unique_customers' => $uniqueCustomerCount,
+            'repeat_customer_rate' => $repeatCustomerRate,
+            'cancellation_rate' => $cancellationRate,
+            'fleet_utilization' => $fleetUtilization,
+
+        ];
+
         return view('admin.reports.index', [
             'rentals' => $rentals,
-            'summary' => $summary,
             'customers' => Customer::all(),
             'motorbikes' => Motorbike::all(),
             'startDate' => $startDate,
             'endDate' => $endDate,
+            'summary' => $summary,
             'dailyStats' => $dailyStats,
-            'statusCounts' => $statusCounts,
+            'topMotorStats' => $topMotorStats,
             'monthlyStats' => $monthlyStats,
-            'weeklyStats' => $weeklyStats,
+            'selectedYear' => $selectedYear,
         ]);
+    }
+
+    public function monthlyData(Request $request)
+    {
+        $year = $request->year ?? Carbon::now()->year;
+
+        $monthlyRevenue = Rental::whereYear('start_date', $year)
+            ->where('is_cancelled', false)
+            ->get()
+            ->groupBy(fn($r) => Carbon::parse($r->start_date)->format('m'))
+            ->map(fn($g) => $g->sum('total_price'))
+            ->toArray();
+
+        $monthlyStats = [];
+        foreach (range(1, 12) as $month) {
+            $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthlyStats[] = [
+                'month' => Carbon::create()->month($month)->format('M'),
+                'total' => $monthlyRevenue[$monthStr] ?? 0
+            ];
+        }
+
+        return response()->json($monthlyStats);
     }
 
     public function exportPdf(Request $request)
@@ -131,8 +183,4 @@ class ReportController extends Controller
             "Laporan_MotoRent_{$startDate}_sampai_{$endDate}.xlsx"
         );
     }
-
-
-
-
 }
