@@ -71,10 +71,10 @@
     <!-- Business Performance and Top Motor -->
     <div class="row g-3 mb-4">
         <div class="col-md-6">
-            <div class="card widgetCardh-100 shadow-sm">
+            <div class="card widgetCard h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="fw-semibold mb-3">Business Performance</h5>
-                    <div class="row g-3">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <div class="border rounded p-3 h-100">
                                 <h6>Total Rentals</h6>
@@ -88,11 +88,36 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Repeat Customer Rate</h6>
+                                <h4 class="fw-bold">{{ $summary['repeat_customer_rate'] }}%</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Cancellation Rate</h6>
+                                <h4 class="fw-bold">{{ $summary['cancellation_rate'] }}%</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="border rounded p-3 h-100">
+                                <h6>Fleet Utilization</h6>
+                                <h4 class="fw-bold">{{ $summary['fleet_utilization'] }}%</h4>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card widgetCardh-100 shadow-sm">
+            <div class="card widgetCard h-100 shadow-sm">
                 <div class="card-body">
                     <h5 class="fw-semibold mb-3">Top Rented Motorcycles</h5>
                     <div class="p-2">
@@ -104,29 +129,22 @@
     </div>
 
     <!-- Bonus Insight -->
-    <div class="card widgetCardshadow-sm mb-4">
+    <div class="card widgetCard shadow-sm mb-4">
         <div class="card-body">
-            <h5 class="fw-semibold mb-3">Bonus Insight</h5>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="border rounded p-3 h-100">
-                        <h6>Repeat Customer Rate</h6>
-                        <h4 class="fw-bold">{{ $summary['repeat_customer_rate'] }}%</h4>
+            <div class="d-flex flex-row align-items-center justify-content-between mb-3">
+                <h5 class="fw-semibold">Anual Income</h5>
+                <form method="GET" class="mb-4">
+                    <div class="d-flex gap-2 align-items-center">
+                        <label for="year" class="form-label mb-0">Select Year:</label>
+                        <select id="yearSelector" class="form-select form-select-sm w-auto">
+                            @for ($y = now()->year; $y >= now()->year - 5; $y--)
+                            <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="border rounded p-3 h-100">
-                        <h6>Cancellation Rate</h6>
-                        <h4 class="fw-bold">5%</h4>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="border rounded p-3 h-100">
-                        <h6>Fleet Utilization</h6>
-                        <h4 class="fw-bold">65%</h4>
-                    </div>
-                </div>
+                </form>
             </div>
+            <canvas id="monthlyChart" height="100"></canvas>
         </div>
     </div>
 </div>
@@ -186,6 +204,44 @@
                 }
             }
         }
+    });
+
+    let monthlyChart;
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+
+    function renderMonthlyChart(data) {
+        if (monthlyChart) monthlyChart.destroy();
+
+        monthlyChart = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.month),
+                datasets: [{
+                    label: 'Annual income ',
+                    data: data.map(item => item.total),
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial render
+    renderMonthlyChart(@json($monthlyStats));
+
+    document.getElementById('yearSelector').addEventListener('change', function() {
+        const year = this.value;
+
+        fetch(`{{ route('reports.monthlyData') }}?year=${year}`)
+            .then(res => res.json())
+            .then(data => renderMonthlyChart(data));
     });
 </script>
 

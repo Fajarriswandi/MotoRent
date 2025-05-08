@@ -51,14 +51,7 @@ class ReportController extends Controller
             ? round(($repeatCustomerCount / $uniqueCustomerCount) * 100)
             : 0;
 
-        $summary = [
-            'total_revenue' => $totalRevenue,
-            'average_revenue' => $rentals->count() > 0 ? round($totalRevenue / $rentals->count()) : 0,
-            'highest_daily_revenue' => $highestDailyRevenue,
-            'total_rentals' => $rentals->count(),
-            'unique_customers' => $uniqueCustomerCount,
-            'repeat_customer_rate' => $repeatCustomerRate,
-        ];
+
 
         $topMotorStats = $rentals
             ->groupBy('motorbike_id')
@@ -72,8 +65,51 @@ class ReportController extends Controller
             ->values()
             ->take(5);
 
+        $totalRentals = $rentals->count();
+        $cancelledRentals = $rentals->where('is_cancelled', true)->count();
+
+        $cancellationRate = $totalRentals > 0
+            ? round(($cancelledRentals / $totalRentals) * 100)
+            : 0;
+
+        $motorbikes = Motorbike::all();
+
+        $motorRentedIds = $rentals->pluck('motorbike_id')->unique();
+        $fleetUtilization = $motorbikes->count() > 0
+            ? round(($motorRentedIds->count() / $motorbikes->count()) * 100)
+            : 0;
+
+        $selectedYear = $request->year ?? Carbon::now()->year;
+
+        $monthlyRevenue = Rental::whereYear('start_date', $selectedYear)
+            ->where('is_cancelled', false)
+            ->get()
+            ->groupBy(fn($r) => Carbon::parse($r->start_date)->format('m'))
+            ->map(fn($g) => $g->sum('total_price'))
+            ->toArray();
+
+        // Siapkan semua bulan biar urut 1-12 meskipun tidak semua ada datanya
+        $monthlyStats = [];
+        foreach (range(1, 12) as $month) {
+            $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthlyStats[] = [
+                'month' => Carbon::create()->month($month)->format('M'),
+                'total' => $monthlyRevenue[$monthStr] ?? 0
+            ];
+        }
 
 
+        $summary = [
+            'total_revenue' => $totalRevenue,
+            'average_revenue' => $rentals->count() > 0 ? round($totalRevenue / $rentals->count()) : 0,
+            'highest_daily_revenue' => $highestDailyRevenue,
+            'total_rentals' => $rentals->count(),
+            'unique_customers' => $uniqueCustomerCount,
+            'repeat_customer_rate' => $repeatCustomerRate,
+            'cancellation_rate' => $cancellationRate,
+            'fleet_utilization' => $fleetUtilization,
+
+        ];
 
         return view('admin.reports.index', [
             'rentals' => $rentals,
@@ -84,7 +120,32 @@ class ReportController extends Controller
             'summary' => $summary,
             'dailyStats' => $dailyStats,
             'topMotorStats' => $topMotorStats,
+            'monthlyStats' => $monthlyStats,
+            'selectedYear' => $selectedYear,
         ]);
+    }
+
+    public function monthlyData(Request $request)
+    {
+        $year = $request->year ?? Carbon::now()->year;
+
+        $monthlyRevenue = Rental::whereYear('start_date', $year)
+            ->where('is_cancelled', false)
+            ->get()
+            ->groupBy(fn($r) => Carbon::parse($r->start_date)->format('m'))
+            ->map(fn($g) => $g->sum('total_price'))
+            ->toArray();
+
+        $monthlyStats = [];
+        foreach (range(1, 12) as $month) {
+            $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $monthlyStats[] = [
+                'month' => Carbon::create()->month($month)->format('M'),
+                'total' => $monthlyRevenue[$monthStr] ?? 0
+            ];
+        }
+
+        return response()->json($monthlyStats);
     }
 
     public function exportPdf(Request $request)
